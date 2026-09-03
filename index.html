@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Ludo Star Royale</title>
+  <title>Ludo King Royale</title>
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // استدعاء فوري لإغلاق شاشة التحميل فوراً
     if (window.Telegram && window.Telegram.WebApp) {
       try {
         window.Telegram.WebApp.ready();
@@ -15,15 +14,16 @@
       } catch(e) {}
     }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=Titan+One&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient: linear-gradient(180deg, #0288D1 0%, #01579B 40%, #0A192F 100%);
-      --blue: #0288D1;
-      --red: #E53935;
-      --green: #43A047;
-      --yellow: #FBC02D;
-      --gold: #FFD700;
-      --card-bg: rgba(15, 23, 42, 0.9);
+      --lk-border-gold: #FDD835;
+      --lk-card-yellow: #FFD500;
+      --lk-card-grad: linear-gradient(180deg, #FFF176 0%, #FFCA28 40%, #FFB300 100%);
+      --lk-bg-blue: #0F52BA;
+      --lk-blue-dark: #002266;
     }
     * {
       box-sizing: border-box;
@@ -31,267 +31,592 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
+      font-family: 'Fredoka', 'Segoe UI', Tahoma, sans-serif;
     }
     html, body {
       width: 100%;
       height: 100%;
-      background: #0A192F;
-      background: var(--bg-gradient);
-      color: #FFFFFF;
-      overflow-x: hidden;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .ludo-phone-frame {
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      background: radial-gradient(circle at center, #1E88E5 0%, #1565C0 45%, #0D47A1 85%, #0A2558 100%);
+      border: 8px solid #FBC02D;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+    .watermark-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(rgba(255,255,255,0.06) 15%, transparent 16%),
+        radial-gradient(rgba(255,255,255,0.06) 15%, transparent 16%);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .screens-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
       display: flex;
       flex-direction: column;
     }
     .app-screen {
       display: none;
       width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      flex: 1;
+      height: 100%;
       flex-direction: column;
     }
     .app-screen.active {
       display: flex;
     }
-    /* Header */
-    .main-header {
-      width: 100%;
+    #homeScreen {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+    .lk-top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
-      background: rgba(10, 25, 47, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 100;
+      padding: 8px 10px 4px;
+      position: relative;
+      z-index: 10;
     }
-    .user-profile {
+    .profile-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
-    .avatar-img {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 2px solid var(--gold);
+    .avatar-wrapper {
+      position: relative;
+      width: 44px;
+      height: 44px;
+    }
+    .avatar-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #FF6F00, #FFD54F);
+      border: 2px solid #FFF;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      background: #1E293B;
+      font-size: 24px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
     }
-    .currencies {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .currency-pill {
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      border: 1px solid rgba(255, 215, 0, 0.3);
-    }
-    /* Home Screen */
-    #homeScreen {
-      overflow-y: auto;
-      padding-bottom: 75px;
-    }
-    .hero-banner {
-      margin: 12px;
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(2, 136, 209, 0.3));
-      border: 2px solid rgba(255, 215, 0, 0.4);
-      border-radius: 20px;
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .hero-banner h1 {
-      font-size: 22px;
-      color: var(--gold);
+    .level-badge {
+      position: absolute;
+      bottom: -6px;
+      left: -4px;
+      background: #FBC02D;
+      color: #3E2723;
+      border: 1.5px solid #FFF;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
       font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .hero-banner p {
-      font-size: 12px;
-      color: #E2E8F0;
-      margin-top: 4px;
+    .btn-cog, .btn-mail {
+      background: linear-gradient(180deg, #42A5F5, #1976D2);
+      border: 2px solid #FFF;
+      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #FFF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      cursor: pointer;
     }
-    .section-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #94A3B8;
-      margin: 10px 16px 4px;
+    .btn-mail {
+      background: linear-gradient(180deg, #FDD835, #F57F17);
+      position: relative;
     }
-    .game-modes-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 0 12px;
+    .badge-dot {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: #D50000;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1px solid #FFF;
     }
-    .mode-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 14px;
+    .currency-group {
+      display: flex;
+      gap: 6px;
+    }
+    .curr-pill {
+      background: linear-gradient(180deg, #0D47A1, #00194B);
+      border: 2px solid #64B5F6;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      padding: 2px 4px 2px 8px;
+      color: #FFF;
+      font-size: 13px;
+      font-weight: 800;
+      gap: 4px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .curr-add-btn {
+      background: linear-gradient(180deg, #66BB6A, #2E7D32);
+      border: 1px solid #FFF;
+      border-radius: 10px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .side-badges-layer {
+      position: absolute;
+      top: 58px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .badge-left-col, .badge-right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .tag-25 {
+      color: #FFD54F;
+      font-weight: 900;
+      font-size: 15px;
+      text-shadow: 0 2px 4px #000;
+      line-height: 1.1;
+    }
+    .tag-25 span { font-size: 10px; color: #FFF; display: block; }
+    .k-plus-badge {
+      width: 38px;
+      height: 38px;
+      background: radial-gradient(circle, #3E2723, #1A0C08);
+      border: 2px solid #FFD54F;
+      border-radius: 50%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .mode-card.selected {
-      border-color: var(--gold);
-      background: rgba(30, 41, 59, 0.95);
-      box-shadow: 0 6px 18px rgba(255, 215, 0, 0.3);
-    }
-    .mode-card .icon { font-size: 32px; margin-bottom: 4px; }
-    .mode-card .title { font-weight: 700; font-size: 14px; }
-    .mode-card .desc { font-size: 11px; color: #94A3B8; }
-    .bet-pills {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 12px;
-    }
-    .bet-pill {
-      background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .bet-pill.active {
-      border-color: var(--gold);
-      background: rgba(255, 215, 0, 0.2);
-      color: var(--gold);
-    }
-    .start-game-btn {
-      margin: 16px 12px;
-      background: linear-gradient(135deg, #FFB300, #FF6F00);
-      color: #FFFFFF;
-      font-size: 18px;
+      justify-content: center;
+      font-size: 10px;
+      color: #FFD54F;
       font-weight: 900;
-      border: none;
-      border-radius: 20px;
-      padding: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+    }
+    .live-badge {
+      background: #B71C1C;
+      border: 1.5px solid #FFCDD2;
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-size: 9px;
+      font-weight: 900;
+      color: #FFF;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .invite-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(255, 111, 0, 0.5);
+    }
+    .invite-icon { font-size: 26px; }
+    .invite-text {
+      background: #0D47A1;
+      border: 1px solid #64B5F6;
+      border-radius: 8px;
+      padding: 1px 6px;
+      font-size: 8px;
+      font-weight: 900;
+      color: #FFD54F;
+      margin-top: -4px;
+    }
+    .no-ads-stamp {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #C62828;
+      border: 2px dashed #FFF;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      font-size: 8px;
+      font-weight: 900;
+      color: #FFF;
+      text-align: center;
+      transform: rotate(-12deg);
     }
-    .stats-card {
-      margin: 10px 12px;
-      background: var(--card-bg);
+    .mascot-box {
+      font-size: 30px;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+      animation: floatMascot 2.5s infinite ease-in-out;
+    }
+    @keyframes floatMascot {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .hero-board-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 6px;
+      position: relative;
+    }
+    .crown-king-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .crown-king-logo .crown {
+      font-size: 32px;
+      margin-bottom: -10px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+    .ludo-letters {
+      display: flex;
+      gap: 3px;
+      font-family: 'Titan One', cursive;
+      font-size: 34px;
+      letter-spacing: 1px;
+    }
+    .letter-l { color: #00E5FF; text-shadow: 0 4px 0 #0091EA, 0 6px 12px rgba(0,0,0,0.6); }
+    .letter-u { color: #FF3D00; text-shadow: 0 4px 0 #D50000, 0 6px 12px rgba(0,0,0,0.6); }
+    .letter-d { color: #00E676; text-shadow: 0 4px 0 #00C853, 0 6px 12px rgba(0,0,0,0.6); }
+    .letter-o { color: #FFEA00; text-shadow: 0 4px 0 #FFAB00, 0 6px 12px rgba(0,0,0,0.6); }
+    .king-sub {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      color: #FFD54F;
+      letter-spacing: 4px;
+      margin-top: -6px;
+      text-shadow: 0 2px 4px #000;
+    }
+    .board-stage {
+      position: relative;
+      width: 220px;
+      height: 105px;
+      margin: 4px auto 8px;
+    }
+    .isometric-board {
+      width: 170px;
+      height: 85px;
+      background: #FFFFFF;
+      border: 4px solid #FBC02D;
+      border-radius: 12px;
+      margin: 15px auto 0;
+      box-shadow: 0 10px 0 #B28704, 0 16px 25px rgba(0,0,0,0.6);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      overflow: hidden;
+      transform: perspective(400px) rotateX(32deg);
+    }
+    .ib-quarter.q-blue { background: #0288D1; border-right: 2px solid #FFF; border-bottom: 2px solid #FFF; }
+    .ib-quarter.q-red { background: #E53935; border-bottom: 2px solid #FFF; }
+    .ib-quarter.q-green { background: #43A047; }
+    .ib-quarter.q-yellow { background: #FBC02D; border-right: 2px solid #FFF; }
+    .board-dice-3d {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) rotate(12deg);
+      width: 44px;
+      height: 44px;
+      background: #FFF;
+      border-radius: 10px;
+      box-shadow: 0 8px 0 #CBD5E1, 0 12px 20px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      border: 1px solid #E2E8F0;
+      animation: diceHover 3s infinite ease-in-out;
+    }
+    @keyframes diceHover {
+      0%, 100% { transform: translateX(-50%) translateY(0) rotate(12deg); }
+      50% { transform: translateX(-50%) translateY(-6px) rotate(18deg); }
+    }
+    .pawn-actor {
+      position: absolute;
+      font-size: 34px;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
+    }
+    .pawn-actor.blue { left: 8px; top: 38px; }
+    .pawn-actor.yellow { right: 8px; top: 38px; }
+    .game-modes-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 14px;
+      margin-top: 4px;
+    }
+    .lk-mode-button {
+      background: var(--lk-card-grad);
+      border: 3.5px solid #29B6F6;
+      border-radius: 22px;
+      height: 98px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: inset 0 3px 0 #FFF, 0 6px 0 #0277BD, 0 10px 18px rgba(0,0,0,0.5);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .lk-mode-button:active {
+      transform: translateY(4px);
+      box-shadow: inset 0 2px 0 #FFF, 0 2px 0 #0277BD, 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .mode-icon-holder {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .voice-mic-badge {
+      position: absolute;
+      top: -8px;
+      right: -24px;
+      background: linear-gradient(135deg, #0288D1, #01579B);
+      border: 1.5px solid #FFF;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .mode-title-text {
+      font-family: 'Titan One', cursive;
+      font-size: 14px;
+      color: #012D6C;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .players-online-count {
+      font-size: 10px;
+      font-weight: 800;
+      color: #013A0E;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 1px;
+    }
+    .green-dot {
+      width: 6px;
+      height: 6px;
+      background: #00C853;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 6px #00E676;
+    }
+    .secondary-events-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 12px 2px;
+      margin-top: 4px;
+    }
+    .event-circle-btn {
+      width: 54px;
+      height: 54px;
+      background: radial-gradient(circle, #FFE082, #FFB300);
+      border: 3px solid #FFF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 5px 0 #E65100, 0 8px 14px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+    .tournament-banner-btn {
+      background: linear-gradient(180deg, #FDD835 0%, #F57F17 100%);
+      border: 3px solid #FFF;
       border-radius: 16px;
-      padding: 12px;
+      padding: 6px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 5px 0 #BF360C, 0 8px 14px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+    .tournament-banner-btn .t-crown { font-size: 18px; margin-top: -8px; }
+    .tournament-banner-btn .t-title {
+      font-family: 'Titan One', cursive;
+      font-size: 15px;
+      color: #3E2723;
+      text-shadow: 0 1px 0 #FFF;
+    }
+    .season-claim-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 4px;
+    }
+    .season-claim-btn {
+      background: linear-gradient(180deg, #FFE57F 0%, #FFC107 40%, #FFA000 100%);
+      border: 3px solid #FFF;
+      border-radius: 20px;
+      padding: 6px 28px 6px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 0 #E65100, 0 10px 20px rgba(0,0,0,0.5);
+      position: relative;
+      cursor: pointer;
+    }
+    .season-pill {
+      background: linear-gradient(135deg, #AB47BC, #6A1B9A);
+      border: 2px solid #FFF;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 900;
+      color: #FFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
+    .season-pill span { font-size: 13px; }
+    .claim-big-text {
+      font-family: 'Titan One', cursive;
+      font-size: 20px;
+      color: #D50000;
+      text-shadow: 0 1px 0 #FFF;
+      letter-spacing: 1px;
+    }
+    .bottom-rewards-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 16px;
+      margin-top: 4px;
+    }
+    .free-ad-stand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .free-ad-tag {
+      background: #FBC02D;
+      color: #D50000;
+      font-family: 'Titan One', cursive;
+      font-size: 12px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1px solid #FFF;
+    }
+    .free-ad-chest { font-size: 34px; margin-top: -2px; }
+    .wheel-stand-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .wheel-icon-3d { font-size: 38px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+    .lk-bottom-navbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(180deg, #1976D2 0%, #0D47A1 40%, #0A2558 100%);
+      border-top: 3px solid #64B5F6;
       display: flex;
       justify-content: space-around;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      align-items: center;
+      z-index: 100;
     }
-    .stat-item { text-align: center; }
-    .stat-num { font-size: 16px; font-weight: 900; color: var(--gold); }
-    .stat-label { font-size: 11px; color: #94A3B8; }
-
-    /* Game Screen */
+    .lk-nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #E3F2FD;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .lk-nav-tab .tab-icon { font-size: 20px; }
+    .lk-nav-tab.home-elevated {
+      transform: translateY(-14px);
+    }
+    .home-glow-circle {
+      width: 52px;
+      height: 52px;
+      background: radial-gradient(circle, #42A5F5 20%, #1565C0 80%);
+      border: 3px solid #FFD54F;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(255, 213, 79, 0.7);
+    }
+    .home-glow-circle .tab-icon { font-size: 24px; }
+    .lk-nav-tab.active { color: #FFD54F; }
     #gameScreen {
       justify-content: space-between;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
-    .game-top-bar {
+    .game-top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 6px 12px;
-      background: rgba(10, 25, 47, 0.8);
-      border-radius: 14px;
-      margin: 6px 10px 0;
+      background: rgba(0, 25, 75, 0.85);
+      border-bottom: 2px solid #64B5F6;
     }
-    .exit-btn {
-      background: rgba(239, 68, 68, 0.2);
-      color: #EF4444;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      border-radius: 10px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .players-row {
+    .board-container {
       width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 10px;
-    }
-    .player-pod {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(15, 23, 42, 0.88);
-      border-radius: 14px;
-      padding: 6px 10px;
-      border: 2px solid transparent;
-      min-width: 130px;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-    .player-pod.active-turn {
-      border-color: var(--gold);
-      box-shadow: 0 0 14px rgba(255, 215, 0, 0.6);
-      transform: scale(1.03);
-    }
-    .player-timer-svg {
-      position: absolute;
-      top: 5px;
-      right: 9px;
-      width: 38px;
-      height: 38px;
-      transform: rotate(-90deg);
-      pointer-events: none;
-    }
-    .timer-circle-bg {
-      stroke: rgba(255, 255, 255, 0.15);
-      stroke-width: 3;
-      fill: none;
-    }
-    .timer-circle-progress {
-      stroke: #10B981;
-      stroke-width: 3;
-      fill: none;
-      stroke-dasharray: 100;
-      stroke-dashoffset: 0;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
-    }
-    .player-avatar-box {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    .player-name { font-size: 12px; font-weight: 700; }
-    .player-sub { font-size: 10px; color: #94A3B8; }
-    .board-wrapper {
-      width: 100%;
-      max-width: 380px;
+      max-width: 375px;
       aspect-ratio: 1 / 1;
       background: #FFFFFF;
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 4px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-      border: 5px solid #29B6F6;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.7);
+      border: 5px solid #FFD54F;
       margin: 0 auto;
       touch-action: none;
     }
@@ -299,138 +624,115 @@
       width: 100%;
       height: 100%;
       display: block;
-      border-radius: 14px;
-      cursor: pointer;
+      border-radius: 10px;
     }
-    .game-controls {
-      width: 100%;
-      max-width: 440px;
-      margin: 0 auto;
+    .players-status-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 12px;
+    }
+    .player-card-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(13, 71, 161, 0.9);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 5px 10px;
+      min-width: 130px;
+      position: relative;
+    }
+    .player-card-badge.turn-active {
+      border-color: #FFD54F;
+      box-shadow: 0 0 12px #FFD54F;
+    }
+    .timer-ring-svg {
+      position: absolute;
+      top: 4px;
+      left: 7px;
+      width: 36px;
+      height: 36px;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+    .timer-ring-svg circle {
+      fill: none;
+      stroke-width: 3.5;
+      stroke-linecap: round;
+    }
+    .circle-bg { stroke: rgba(255,255,255,0.2); }
+    .circle-prog { stroke: #00E676; stroke-dasharray: 100; stroke-dashoffset: 0; }
+    .dice-bottom-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 14px;
+      padding: 4px 16px;
     }
-    .dice-center-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .dice-box {
+    .dice-cube {
       width: 58px;
       height: 58px;
       background: #FFFFFF;
-      border-radius: 16px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 900;
       color: #1E293B;
-      box-shadow: 0 6px 0 #CBD5E1, 0 10px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 0 #94A3B8, 0 10px 18px rgba(0,0,0,0.6);
       cursor: pointer;
       border: 2px solid #E2E8F0;
     }
-    .dice-box.rolling {
-      animation: rollAnim 0.5s infinite linear;
-    }
+    .dice-cube.rolling { animation: rollAnim 0.5s infinite linear; }
     @keyframes rollAnim {
       0% { transform: rotate(0deg) scale(0.9); }
       50% { transform: rotate(180deg) scale(1.1); }
       100% { transform: rotate(360deg) scale(0.9); }
     }
-    .reroll-btn {
+    .btn-reroll {
       display: none;
-      background: linear-gradient(135deg, #0288D1, #01579B);
-      border: 2px solid #38BDF8;
-      border-radius: 16px;
-      padding: 8px 12px;
-      color: #FFFFFF;
-      font-size: 11px;
-      font-weight: 700;
+      background: linear-gradient(180deg, #29B6F6, #0288D1);
+      border: 2px solid #FFF;
+      border-radius: 14px;
+      padding: 6px 12px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 800;
       align-items: center;
       gap: 4px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
     }
-    .reroll-btn.visible { display: flex; }
-    .turn-hint-box {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 12px;
-      padding: 6px 12px;
-      font-size: 12px;
-      text-align: center;
-      margin: 0 12px;
-      color: var(--gold);
-      border: 1px solid rgba(255, 215, 0, 0.2);
-    }
-    .emoji-pill {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      display: flex;
+    .btn-reroll.show { display: flex; }
+    #wheelScreen {
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 20px 10px 70px;
     }
-
-    /* Mining */
-    #miningScreen { align-items: center; padding-top: 20px; }
-    .tap-coin-btn {
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, #FFE082 20%, #FFB300 70%, #FF8F00 100%);
-      border-radius: 50%;
-      border: 6px solid #FFF8E1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      margin: 25px auto;
+    .wheel-box {
+      position: relative;
+      width: 290px;
+      height: 290px;
+      margin: 20px auto;
     }
-    /* Wheel */
-    #wheelScreen { align-items: center; padding-top: 15px; }
-    .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-    canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid var(--gold); }
-    .wheel-arrow {
-      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-      width: 0; height: 0; border-left: 14px solid transparent;
-      border-right: 14px solid transparent; border-top: 24px solid #E53935; z-index: 10;
+    canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #FFD54F; }
+    .wheel-pin {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 26px solid #D50000;
+      z-index: 10;
     }
-    /* Bottom Nav */
-    nav.bottom-nav {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 62px;
-      background: rgba(10, 25, 47, 0.96);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 200;
-    }
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      color: #94A3B8;
-      font-size: 11px;
-      cursor: pointer;
-    }
-    .nav-btn.active { color: var(--gold); font-weight: 700; }
-    .nav-btn .icon { font-size: 20px; }
-    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
       z-index: 500;
       align-items: center;
       justify-content: center;
@@ -438,1038 +740,948 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-box {
-      background: #0F172A;
-      border: 2px solid var(--gold);
-      border-radius: 20px;
+      background: radial-gradient(circle, #1565C0, #0A2558);
+      border: 4px solid #FFD54F;
+      border-radius: 24px;
       padding: 24px;
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       text-align: center;
+      color: #FFF;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
   </style>
 </head>
-<body>
+<body><div class="ludo-phone-frame">
+  <div class="watermark-bg"></div>
 
-  <!-- Top Header -->
-  <header class="main-header">
-    <div class="user-profile">
-      <div class="avatar-img" id="myAvatar">👑</div>
-      <div>
-        <div style="font-weight: 700; font-size: 13px;" id="myUserName">اللاعب الملكي</div>
-        <div style="font-size: 10px; color: #38BDF8;">دوري النخبة 🏆</div>
-      </div>
-    </div>
-    <div class="currencies">
-      <div class="currency-pill">🪙 <span id="tokenDisplay">1,000</span></div>
-      <div class="currency-pill">💎 <span id="gemDisplay">20</span></div>
-    </div>
-  </header>
+  <div class="screens-container">
 
-  <!-- ================= 1. HOME SCREEN ================= -->
-  <div class="app-screen active" id="homeScreen">
-    <div class="hero-banner">
-      <h1>🎲 لودو ستار الملكية</h1>
-      <p>تحدَّ أمهر اللاعبين، ارمِ النرد واربح ملايين التوكنز والجواهر!</p>
-    </div>
-
-    <div class="stats-card">
-      <div class="stat-item"><div class="stat-num" id="statWins">14</div><div class="stat-label">انتصارات 🏆</div></div>
-      <div class="stat-item"><div class="stat-num" id="statMatches">22</div><div class="stat-label">مباريات ⚔️</div></div>
-      <div class="stat-item"><div class="stat-num" id="statLevel">5</div><div class="stat-label">المستوى 🎖️</div></div>
-    </div>
-
-    <div class="section-title">اختر نمط اللعبة:</div>
-    <div class="game-modes-grid">
-      <div class="mode-card selected" id="mode1v1" onclick="selectGameMode('1v1')">
-        <div class="icon">⚔️</div>
-        <div class="title">1 ضد 1 سريع</div>
-        <div class="desc">مواجهة ثنائية ضد البوت</div>
-      </div>
-      <div class="mode-card" id="mode4p" onclick="selectGameMode('4p')">
-        <div class="icon">👑</div>
-        <div class="title">4 لاعبين (ملكي)</div>
-        <div class="desc">حرب الطاولة الرباعية</div>
-      </div>
-    </div>
-
-    <div class="section-title">قيمة الرهان (توكنز):</div>
-    <div class="bet-pills">
-      <div class="bet-pill active" onclick="selectBet(100, this)">🪙 100</div>
-      <div class="bet-pill" onclick="selectBet(500, this)">🪙 500</div>
-      <div class="bet-pill" onclick="selectBet(1000, this)">🪙 1,000</div>
-      <div class="bet-pill" onclick="selectBet(2500, this)">🪙 2,500</div>
-      <div class="bet-pill" onclick="selectBet(5000, this)">🪙 5,000</div>
-    </div>
-
-    <button class="start-game-btn" onclick="launchGame()">
-      <span>بدء المباراة الآن</span><span>🎲</span>
-    </button>
-  </div>
-
-  <!-- ================= 2. GAME SCREEN ================= -->
-  <div class="app-screen" id="gameScreen">
-    <div class="game-top-bar">
-      <button class="exit-btn" onclick="confirmExitGame()">خروج ✕</button>
-      <div style="font-size: 12px; font-weight: 700; color: var(--gold);" id="matchPotInfo">الجائزة: 🪙 200</div>
-      <div style="font-size: 11px; color: #94A3B8;" id="gameModeLabel">1 ضد 1</div>
-    </div>
-
-    <!-- Top Players -->
-    <div class="players-row">
-      <div class="player-pod" id="podBlue">
-        <svg class="player-timer-svg" viewBox="0 0 36 36">
-          <circle class="timer-circle-bg" cx="18" cy="18" r="15"/>
-          <circle class="timer-circle-progress" id="timerBlue" cx="18" cy="18" r="15"/>
-        </svg>
-        <div class="player-avatar-box" style="background: #0288D1;">🦁</div>
-        <div><div class="player-name">سلطان اللودو</div><div class="player-sub">أزرق</div></div>
-      </div>
-      <div class="player-pod" id="podRed">
-        <svg class="player-timer-svg" viewBox="0 0 36 36">
-          <circle class="timer-circle-bg" cx="18" cy="18" r="15"/>
-          <circle class="timer-circle-progress" id="timerRed" cx="18" cy="18" r="15"/>
-        </svg>
-        <div class="player-avatar-box" style="background: #E53935;">🦅</div>
-        <div><div class="player-name" id="nameRed">أمير النرد</div><div class="player-sub">أحمر</div></div>
-      </div>
-    </div>
-
-    <!-- 15x15 Canvas Board -->
-    <div class="board-wrapper">
-      <canvas id="ludoCanvas" width="600" height="600"></canvas>
-    </div>
-
-    <!-- Bottom Players -->
-    <div class="players-row">
-      <div class="player-pod active-turn" id="podYellow">
-        <svg class="player-timer-svg" viewBox="0 0 36 36">
-          <circle class="timer-circle-bg" cx="18" cy="18" r="15"/>
-          <circle class="timer-circle-progress" id="timerYellow" cx="18" cy="18" r="15"/>
-        </svg>
-        <div class="player-avatar-box" style="background: #FBC02D; color: #000;">👑</div>
-        <div><div class="player-name" id="nameYellow">أنت (محلي)</div><div class="player-sub">أصفر (دورك)</div></div>
-      </div>
-      <div class="player-pod" id="podGreen">
-        <svg class="player-timer-svg" viewBox="0 0 36 36">
-          <circle class="timer-circle-bg" cx="18" cy="18" r="15"/>
-          <circle class="timer-circle-progress" id="timerGreen" cx="18" cy="18" r="15"/>
-        </svg>
-        <div class="player-avatar-box" style="background: #43A047;">🐺</div>
-        <div><div class="player-name">الأسطورة 99</div><div class="player-sub">أخضر</div></div>
-      </div>
-    </div>
-
-    <div class="turn-hint-box" id="turnHint">🎲 دورك الآن! اضغط على النرد لرميه</div>
-
-    <div class="game-controls">
-      <div style="display: flex; gap: 8px;">
-        <div class="emoji-pill" onclick="sendEmoji('🔥')">🔥</div>
-        <div class="emoji-pill" onclick="sendEmoji('😂')">😂</div>
-      </div>
-      <div class="dice-center-area">
-        <div class="reroll-btn" id="rerollBtn" onclick="handleRerollClick()">
-          <span>إعادة 🎲</span><span id="rerollCostLabel">💎 1</span>
+    <!-- 1. HOME SCREEN -->
+    <div class="app-screen active" id="homeScreen">
+      <div class="lk-top-bar">
+        <div class="profile-group">
+          <div class="avatar-wrapper">
+            <div class="avatar-box">👩</div>
+            <div class="level-badge">1</div>
+          </div>
+          <div class="btn-cog" onclick="showSettings()">⚙️</div>
+          <div class="btn-mail" onclick="showInbox()">✉️<div class="badge-dot"></div></div>
         </div>
-        <div class="dice-box" id="gameDice" onclick="handleUserDiceClick()">🎲</div>
+
+        <div class="currency-group">
+          <div class="curr-pill">💎 <span id="gemCount">50</span><div class="curr-add-btn" onclick="openWheel()">+</div></div>
+          <div class="curr-pill">🟡 <span id="coinCount">10,050</span><div class="curr-add-btn" onclick="openFreeRewards()">+</div></div>
+        </div>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <div class="emoji-pill" onclick="sendEmoji('😎')">😎</div>
-        <div class="emoji-pill" onclick="sendEmoji('💔')">💔</div>
+
+      <div class="side-badges-layer">
+        <div class="badge-left-col">
+          <div class="tag-25">₹25<span>Only</span></div>
+          <div class="k-plus-badge">👑<span>K+</span></div>
+          <div class="live-badge">👑 KING<br>▶ LIVE</div>
+        </div>
+        <div class="badge-right-col">
+          <div class="invite-badge" onclick="shareInviteLink()">
+            <div class="invite-icon">👤🪙</div>
+            <div class="invite-text">INVITE<br>Get 10,000</div>
+          </div>
+          <div class="no-ads-stamp">NO<br>ADS</div>
+          <div class="mascot-box">📦😋</div>
+        </div>
+      </div>
+
+      <div class="hero-board-area">
+        <div class="crown-king-logo">
+          <div class="crown">👑</div>
+          <div class="ludo-letters">
+            <span class="letter-l">L</span>
+            <span class="letter-u">U</span>
+            <span class="letter-d">D</span>
+            <span class="letter-o">O</span>
+          </div>
+          <div class="king-sub">KING</div>
+        </div>
+
+        <div class="board-stage">
+          <div class="pawn-actor blue">♟️</div>
+          <div class="isometric-board">
+            <div class="ib-quarter q-blue"></div>
+            <div class="ib-quarter q-red"></div>
+            <div class="ib-quarter q-yellow"></div>
+            <div class="ib-quarter q-green"></div>
+          </div>
+          <div class="board-dice-3d">🎲</div>
+          <div class="pawn-actor yellow">♟️</div>
+        </div>
+      </div>
+
+      <div class="game-modes-section">
+        <div class="lk-mode-button" onclick="launchGameMode('online')">
+          <div class="mode-icon-holder"><span style="font-size: 32px;">📱🌐📱</span></div>
+          <div class="mode-title-text">PLAY ONLINE</div>
+          <div class="players-online-count"><span class="green-dot"></span> Players: 112,879</div>
+        </div>
+
+        <div class="lk-mode-button" onclick="launchGameMode('friends')">
+          <div class="mode-icon-holder">
+            <span style="font-size: 32px;">📱💕📱</span>
+            <div class="voice-mic-badge">🎙️</div>
+          </div>
+          <div class="mode-title-text">PLAY WITH FRIENDS</div>
+          <div class="players-online-count"><span class="green-dot"></span> Players: 15,436</div>
+        </div>
+
+        <div class="lk-mode-button" onclick="launchGameMode('computer')">
+          <div class="mode-icon-holder"><span style="font-size: 32px;">💻 ⚔️ 📱</span></div>
+          <div class="mode-title-text">COMPUTER</div>
+        </div>
+
+        <div class="lk-mode-button" onclick="launchGameMode('pass_play')">
+          <div class="mode-icon-holder"><span style="font-size: 32px;">👥 🎲 👥</span></div>
+          <div class="mode-title-text">PASS N PLAY</div>
+        </div>
+      </div>
+
+      <div class="secondary-events-row">
+        <div class="event-circle-btn" onclick="alert('7 Up Down Coming Soon!')">🎲7️⃣</div>
+        <div class="tournament-banner-btn" onclick="launchGameMode('online')">
+          <div class="t-crown">👑</div>
+          <div class="t-title">TOURNAMENT</div>
+        </div>
+        <div class="event-circle-btn" onclick="alert('Snakes & Ladders coming soon!')">🐍🪜</div>
+      </div>
+
+      <div class="season-claim-wrapper">
+        <div class="season-claim-btn" onclick="claimSeasonReward()">
+          <div class="season-pill">SEASON<span>8</span></div>
+          <div class="claim-big-text">CLAIM</div>
+        </div>
+      </div>
+
+      <div class="bottom-rewards-row">
+        <div class="free-ad-stand" onclick="openFreeRewards()">
+          <div class="free-ad-tag">FREE AD x4</div>
+          <div class="free-ad-chest">🎁</div>
+        </div>
+        <div class="wheel-stand-btn" onclick="navigateToTab('wheel')">
+          <div class="wheel-icon-3d">🎡</div>
+          <div style="font-size: 10px; font-weight: 900; color: #FFD54F;">SPIN & WIN</div>
+        </div>
       </div>
     </div>
+
+    <!-- 2. GAME SCREEN -->
+    <div class="app-screen" id="gameScreen">
+      <div class="game-top-row">
+        <button style="background: #D32F2F; border: 2px solid #FFF; border-radius: 8px; color: #FFF; padding: 4px 10px; font-weight: 800; cursor: pointer;" onclick="exitGameToHome()">EXIT ✕</button>
+        <div style="color: #FFD54F; font-weight: 900; font-size: 14px;" id="gamePrizeText">PRIZE: 🪙 1,000</div>
+        <div style="font-size: 11px; color: #90CAF9;" id="gameModeTitle">VS COMPUTER</div>
+      </div>
+
+      <div class="players-status-row">
+        <div class="player-card-badge" id="badgeBlue">
+          <svg class="timer-ring-svg" viewBox="0 0 36 36"><circle class="circle-bg" cx="18" cy="18" r="15"/><circle class="circle-prog" id="tBlue" cx="18" cy="18" r="15"/></svg>
+          <div style="font-size: 20px;">🦁</div>
+          <div><div style="font-size: 12px; font-weight: 800; color: #FFF;">Alex</div><div style="font-size: 10px; color: #90CAF9;">Blue</div></div>
+        </div>
+        <div class="player-card-badge" id="badgeRed">
+          <svg class="timer-ring-svg" viewBox="0 0 36 36"><circle class="circle-bg" cx="18" cy="18" r="15"/><circle class="circle-prog" id="tRed" cx="18" cy="18" r="15"/></svg>
+          <div style="font-size: 20px;">🦅</div>
+          <div><div style="font-size: 12px; font-weight: 800; color: #FFF;" id="botNameRed">Bot King</div><div style="font-size: 10px; color: #FFCDD2;">Red</div></div>
+        </div>
+      </div>
+
+      <div class="board-container">
+        <canvas id="ludoCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <div class="players-status-row">
+        <div class="player-card-badge turn-active" id="badgeYellow">
+          <svg class="timer-ring-svg" viewBox="0 0 36 36"><circle class="circle-bg" cx="18" cy="18" r="15"/><circle class="circle-prog" id="tYellow" cx="18" cy="18" r="15"/></svg>
+          <div style="font-size: 20px;">👑</div>
+          <div><div style="font-size: 12px; font-weight: 800; color: #FFD54F;" id="myPlayerName">You</div><div style="font-size: 10px; color: #FFF9C4;">Yellow (Turn)</div></div>
+        </div>
+        <div class="player-card-badge" id="badgeGreen">
+          <svg class="timer-ring-svg" viewBox="0 0 36 36"><circle class="circle-bg" cx="18" cy="18" r="15"/><circle class="circle-prog" id="tGreen" cx="18" cy="18" r="15"/></svg>
+          <div style="font-size: 20px;">🐺</div>
+          <div><div style="font-size: 12px; font-weight: 800; color: #FFF;">Tiger99</div><div style="font-size: 10px; color: #C8E6C9;">Green</div></div>
+        </div>
+      </div>
+
+      <div style="text-align: center; color: #FFD54F; font-size: 12px; font-weight: 800; padding: 2px;" id="gameTurnTip">🎲 Tap the dice to roll!</div>
+
+      <div class="dice-bottom-bar">
+        <div style="display: flex; gap: 6px;">
+          <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;" onclick="sendQuickEmoji('🔥')">🔥</div>
+          <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;" onclick="sendQuickEmoji('😂')">😂</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="btn-reroll" id="rerollBtn" onclick="handleReroll()">
+            <span>REROLL 🎲</span><span id="rerollCost">💎 1</span>
+          </div>
+          <div class="dice-cube" id="ludoDice" onclick="handleDiceTap()">🎲</div>
+        </div>
+
+        <div style="display: flex; gap: 6px;">
+          <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;" onclick="sendQuickEmoji('😎')">😎</div>
+          <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;" onclick="sendQuickEmoji('💔')">💔</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. WHEEL SCREEN -->
+    <div class="app-screen" id="wheelScreen">
+      <h2 style="color: #FFD54F; font-family: 'Titan One', cursive;">SPIN & WIN 🎡</h2>
+      <p style="color: #E3F2FD; font-size: 12px; margin-top: 4px;">Exclusive Gems & Coin Rewards!</p>
+      <div class="wheel-box">
+        <div class="wheel-pin"></div>
+        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+      </div>
+      <button style="background: linear-gradient(180deg, #FDD835, #F57F17); border: 3px solid #FFF; border-radius: 20px; padding: 12px 36px; color: #3E2723; font-family: 'Titan One', cursive; font-size: 18px; cursor: pointer; box-shadow: 0 6px 0 #BF360C;" onclick="spinWheelAction()">SPIN NOW 🎁</button>
+    </div>
+
   </div>
 
-  <!-- ================= 3. MINING SCREEN ================= -->
-  <div class="app-screen" id="miningScreen">
-    <h2 style="color: var(--gold); margin-top: 15px;">منجم التوكنز الافتراضي ⛏️</h2>
-    <p style="font-size: 13px; color: #CBD5E1; margin-top: 4px;">اضغط 4 مرات للحصول على 1 توكن مجاني فوراً!</p>
-    <div class="tap-coin-btn" onclick="handleMiningClick(event)">
-      <div style="font-size: 48px;">🪙</div>
-      <div style="font-weight: 900; font-size: 18px; color: #78350F; margin-top: 6px;">اضغط واربح</div>
+  <div class="lk-bottom-navbar">
+    <div class="lk-nav-tab" onclick="alert('Events coming soon!')"><div class="tab-icon">⭐</div><div>EVENT</div></div>
+    <div class="lk-nav-tab" onclick="shareInviteLink()"><div class="tab-icon">👥</div><div>FRIENDS</div></div>
+    <div class="lk-nav-tab home-elevated active" onclick="navigateToTab('home')">
+      <div class="home-glow-circle"><div class="tab-icon">🏠</div></div>
+      <div style="margin-top: 2px;">HOME</div>
     </div>
-    <div style="font-size: 15px; font-weight: 700; margin-top: 10px;">
-      النقرات: <span id="miningTapsLabel" style="color: var(--gold);">0</span> / 4
-    </div>
-    <div style="width: 80%; background: rgba(255,255,255,0.2); height: 16px; border-radius: 12px; overflow: hidden; margin-top: 10px;">
-      <div id="miningProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FFA000);"></div>
-    </div>
+    <div class="lk-nav-tab" onclick="alert('Inventory: Default King Board & Dice')"><div class="tab-icon">🎲</div><div>INVENTORY</div></div>
+    <div class="lk-nav-tab" onclick="navigateToTab('wheel')"><div class="tab-icon">🛒</div><div>STORE</div></div>
   </div>
 
-  <!-- ================= 4. WHEEL SCREEN ================= -->
-  <div class="app-screen" id="wheelScreen">
-    <h2 style="color: var(--gold); margin-top: 15px;">عجلة الحظ الملكية 🎡</h2>
-    <p style="font-size: 12px; color: #CBD5E1; margin-top: 4px;">المصدر الحصري لربح الجواهر النادرة 💎!</p>
-    <div class="wheel-wrapper">
-      <div class="wheel-arrow"></div>
-      <canvas id="wheelCanvas" width="300" height="300"></canvas>
-    </div>
-    <button class="start-game-btn" style="max-width: 260px;" onclick="spinLuckyWheel()">لف العجلة مجاناً 🎁</button>
-  </div>
-
-  <!-- Win Modal -->
-  <div class="modal-overlay" id="endGameModal">
+  <div class="modal-overlay" id="victoryModal">
     <div class="modal-box">
-      <div style="font-size: 50px;" id="endModalIcon">🏆</div>
-      <h2 id="endModalTitle" style="color: var(--gold); margin: 6px 0;">فوز ساحق!</h2>
-      <p style="font-size: 13px; color: #E2E8F0; margin-bottom: 16px;" id="endModalDesc">لقد ربحت 🪙 200 توكن!</p>
-      <button class="start-game-btn" style="width: 100%; margin: 0;" onclick="returnToHome()">العودة للرئيسية 🏠</button>
+      <div style="font-size: 54px;" id="vicIcon">🏆</div>
+      <h2 style="color: #FFD54F; font-family: 'Titan One', cursive; margin: 8px 0;" id="vicTitle">VICTORY!</h2>
+      <p style="font-size: 14px; margin-bottom: 20px;" id="vicMsg">You won 🪙 1,000 Coins!</p>
+      <button style="background: linear-gradient(180deg, #FDD835, #F57F17); border: 3px solid #FFF; border-radius: 18px; padding: 10px 24px; color: #3E2723; font-family: 'Titan One', cursive; font-size: 16px; cursor: pointer;" onclick="returnToHome()">CONTINUE</button>
     </div>
   </div>
 
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <div class="nav-btn active" id="navHome" onclick="navigateToTab('home')"><div class="icon">🏠</div><div>الرئيسية</div></div>
-    <div class="nav-btn" id="navGame" onclick="navigateToTab('game')"><div class="icon">🎲</div><div>اللعبة</div></div>
-    <div class="nav-btn" id="navMining" onclick="navigateToTab('mining')"><div class="icon">⛏️</div><div>منجم التوكنز</div></div>
-    <div class="nav-btn" id="navWheel" onclick="navigateToTab('wheel')"><div class="icon">🎡</div><div>عجلة الحظ</div></div>
-  </nav>
-
-  <script>
-    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    if (tg) {
-      try {
-        tg.ready();
-        tg.expand();
-        if (tg.setHeaderColor) tg.setHeaderColor('#0288D1');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#0A192F');
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          var u = tg.initDataUnsafe.user;
-          var full = (u.first_name || '') + (u.last_name ? ' ' + u.last_name : '');
-          if (full.trim()) {
-            document.getElementById('myUserName').innerText = full;
-            document.getElementById('nameYellow').innerText = full;
-          }
-        }
-      } catch (e) {}
-    }
-
-    function haptic(type) {
-      if (!type) type = 'medium';
-      try {
-        if (tg && tg.HapticFeedback) {
-          if (type === 'selection') tg.HapticFeedback.selectionChanged();
-          else tg.HapticFeedback.impactOccurred(type);
-        }
-      } catch (e) {}
-    }
-
-    if (!CanvasRenderingContext2D.prototype.roundRect) {
-      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-        if (!r) r = 0;
-        var radius = typeof r === 'number' ? r : (r[0] || 0);
-        this.beginPath();
-        this.moveTo(x + radius, y);
-        this.arcTo(x + w, y, x + w, y + h, radius);
-        this.arcTo(x + w, y + h, x, y + h, radius);
-        this.arcTo(x, y + h, x, y, radius);
-        this.arcTo(x, y, x + w, y, radius);
-        this.closePath();
-        return this;
-      };
-    }
-
-    var tokens = 1000, gems = 20, selectedMode = '1v1', currentBet = 100;
-    var winsCount = 14, matchesCount = 22;
-
-    function updateCurrencyUI() {
-      document.getElementById('tokenDisplay').innerText = tokens.toLocaleString();
-      document.getElementById('gemDisplay').innerText = gems.toLocaleString();
-    }
-
-    function navigateToTab(tab) {
-      haptic('selection');
-      var screens = document.querySelectorAll('.app-screen');
-      for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
-      var navBtns = document.querySelectorAll('.nav-btn');
-      for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
-
-      if (tab === 'home') {
-        document.getElementById('homeScreen').classList.add('active');
-        document.getElementById('navHome').classList.add('active');
-      } else if (tab === 'game') {
-        document.getElementById('gameScreen').classList.add('active');
-        document.getElementById('navGame').classList.add('active');
-        renderBoard();
-      } else if (tab === 'mining') {
-        document.getElementById('miningScreen').classList.add('active');
-        document.getElementById('navMining').classList.add('active');
-      } else if (tab === 'wheel') {
-        document.getElementById('wheelScreen').classList.add('active');
-        document.getElementById('navWheel').classList.add('active');
-        drawWheel(wheelAngle);
+            </div><script>
+  var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  if (tg) {
+    try {
+      tg.ready();
+      tg.expand();
+      if (tg.setHeaderColor) tg.setHeaderColor('#1565C0');
+      if (tg.setBackgroundColor) tg.setBackgroundColor('#002266');
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        var u = tg.initDataUnsafe.user;
+        var full = (u.first_name || '') + (u.last_name ? ' ' + u.last_name : '');
+        if (full.trim()) document.getElementById('myPlayerName').innerText = full;
       }
-    }
+    } catch (e) {}
+  }
 
-    function selectGameMode(mode) {
-      haptic('selection');
-      selectedMode = mode;
-      document.getElementById('mode1v1').classList.toggle('selected', mode === '1v1');
-      document.getElementById('mode4p').classList.toggle('selected', mode === '4p');
-    }
-
-    function selectBet(amount, element) {
-      haptic('selection');
-      currentBet = amount;
-      var pills = document.querySelectorAll('.bet-pill');
-      for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
-      element.classList.add('active');
-    }
-
-    function launchGame() {
-      if (tokens < currentBet) {
-        alert('عذراً! لا تمتلك رصيد كافٍ من التوكنز. استخدم منجم التوكنز لكسب المزيد مجاناً!');
-        return;
+  function haptic(type) {
+    if (!type) type = 'medium';
+    try {
+      if (tg && tg.HapticFeedback) {
+        if (type === 'selection') tg.HapticFeedback.selectionChanged();
+        else tg.HapticFeedback.impactOccurred(type);
       }
-      tokens -= currentBet;
-      updateCurrencyUI();
-      haptic('heavy');
-      initMatch();
-      navigateToTab('game');
-    }
+    } catch (e) {}
+  }
 
-    function confirmExitGame() {
-      if (confirm('هل أنت متأكد من الخروج والانسحاب من المباراة الحالية؟')) {
-        clearTurnTimer();
-        navigateToTab('home');
-      }
-    }
+  var coins = 10050, gems = 50;
+  function updateCurrencies() {
+    document.getElementById('coinCount').innerText = coins.toLocaleString();
+    document.getElementById('gemCount').innerText = gems.toLocaleString();
+  }
 
-    function returnToHome() {
-      document.getElementById('endGameModal').classList.remove('active');
+  function navigateToTab(tab) {
+    haptic('selection');
+    var screens = document.querySelectorAll('.app-screen');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+    
+    if (tab === 'home') document.getElementById('homeScreen').classList.add('active');
+    else if (tab === 'game') {
+      document.getElementById('gameScreen').classList.add('active');
+      renderBoard();
+    } else if (tab === 'wheel') {
+      document.getElementById('wheelScreen').classList.add('active');
+      drawWheel(wheelAngle);
+    }
+  }
+
+  function launchGameMode(mode) {
+    haptic('heavy');
+    var modeTitle = 'VS COMPUTER';
+    if (mode === 'online') modeTitle = 'PLAY ONLINE';
+    else if (mode === 'friends') modeTitle = 'WITH FRIENDS';
+    else if (mode === 'pass_play') modeTitle = 'PASS N PLAY';
+    
+    document.getElementById('gameModeTitle').innerText = modeTitle;
+    initMatch(mode);
+    navigateToTab('game');
+  }
+
+  function exitGameToHome() {
+    if (confirm('Are you sure you want to leave the game?')) {
+      clearTurnTimer();
       navigateToTab('home');
     }
+  }
 
-    // 52 Common Path Cells [col, row]
-    var COMMON_PATH = [
-      [1, 6], [2, 6], [3, 6], [4, 6], [5, 6],
-      [6, 5], [6, 4], [6, 3], [6, 2], [6, 1], [6, 0],
-      [7, 0],
-      [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5],
-      [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6],
-      [14, 7],
-      [14, 8], [13, 8], [12, 8], [11, 8], [10, 8], [9, 8],
-      [8, 9], [8, 10], [8, 11], [8, 12], [8, 13], [8, 14],
-      [7, 14],
-      [6, 14], [6, 13], [6, 12], [6, 11], [6, 10], [6, 9],
-      [5, 8], [4, 8], [3, 8], [2, 8], [1, 8], [0, 8],
-      [0, 7],
-      [0, 6]
-    ];
+  function returnToHome() {
+    document.getElementById('victoryModal').classList.remove('active');
+    navigateToTab('home');
+  }
 
-    var HOME_STRETCHES = {
-      BLUE: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
-      RED: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
-      GREEN: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
-      YELLOW: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]]
-    };
+  function showSettings() { alert('Settings:\n🔊 Sound: ON\n📳 Haptics: ON\n🌐 Server: Global'); }
+  function showInbox() { alert('Inbox: Welcome to Ludo King Royale Telegram Mini App!'); }
+  function openFreeRewards() {
+    coins += 500;
+    updateCurrencies();
+    haptic('heavy');
+    alert('🎁 Congratulations! You received 500 Free Coins!');
+  }
+  function openWheel() { navigateToTab('wheel'); }
+  function claimSeasonReward() {
+    gems += 10;
+    coins += 1000;
+    updateCurrencies();
+    haptic('heavy');
+    alert('🎉 Season 8 Claimed!\n+10 Gems 💎\n+1,000 Coins 🪙');
+  }
+  function shareInviteLink() {
+    if (tg && tg.openTelegramLink) {
+      tg.openTelegramLink('https://t.me/share/url?url=https://t.me/ludoludominibot&text=Play%20Ludo%20King%20Royale%20with%20me!');
+    } else {
+      alert('Invite link copied to clipboard!');
+    }
+  }
 
-    var SAFE_STARS = [0, 8, 13, 21, 26, 34, 39, 47];
+  var COMMON_PATH = [
+    [1, 6], [2, 6], [3, 6], [4, 6], [5, 6],
+    [6, 5], [6, 4], [6, 3], [6, 2], [6, 1], [6, 0],
+    [7, 0],
+    [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5],
+    [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6],
+    [14, 7],
+    [14, 8], [13, 8], [12, 8], [11, 8], [10, 8], [9, 8],
+    [8, 9], [8, 10], [8, 11], [8, 12], [8, 13], [8, 14],
+    [7, 14],
+    [6, 14], [6, 13], [6, 12], [6, 11], [6, 10], [6, 9],
+    [5, 8], [4, 8], [3, 8], [2, 8], [1, 8], [0, 8],
+    [0, 7],
+    [0, 6]
+  ];
 
-    var COLOR_CONFIG = {
-      BLUE: { startIndex: 0, homeEntryIndex: 50 },
-      RED: { startIndex: 13, homeEntryIndex: 11 },
-      GREEN: { startIndex: 26, homeEntryIndex: 24 },
-      YELLOW: { startIndex: 39, homeEntryIndex: 37 }
-    };
+  var HOME_STRETCHES = {
+    BLUE: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]],
+    RED: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]],
+    GREEN: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]],
+    YELLOW: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]]
+  };
 
-    var BASE_SLOTS = {
-      BLUE: [[2.2, 2.2], [3.8, 2.2], [2.2, 3.8], [3.8, 3.8]],
-      RED: [[11.2, 2.2], [12.8, 2.2], [11.2, 3.8], [12.8, 3.8]],
-      GREEN: [[11.2, 11.2], [12.8, 11.2], [11.2, 12.8], [12.8, 12.8]],
-      YELLOW: [[2.2, 11.2], [3.8, 11.2], [2.2, 12.8], [3.8, 12.8]]
-    };
+  var SAFE_STARS = [0, 8, 13, 21, 26, 34, 39, 47];
 
-    var matchPlayers = [], currentTurnIndex = 0, diceValue = null, isDiceRolling = false;
-    var hasMovedPieceInTurn = false, rerollCostGems = 1, consecutiveSixes = 0;
-    var turnTimeSeconds = 15, turnTimerInterval = null;
-    var consecutiveMisses = { YELLOW: 0, RED: 0, BLUE: 0, GREEN: 0 };
-    var pawnsState = { BLUE: [], RED: [], GREEN: [], YELLOW: [] };
+  var COLOR_CONFIG = {
+    BLUE: { startIndex: 0, homeEntryIndex: 50 },
+    RED: { startIndex: 13, homeEntryIndex: 11 },
+    GREEN: { startIndex: 26, homeEntryIndex: 24 },
+    YELLOW: { startIndex: 39, homeEntryIndex: 37 }
+  };
 
-    function initMatch() {
-      if (selectedMode === '1v1') {
-        matchPlayers = ['YELLOW', 'RED'];
-        document.getElementById('podBlue').style.display = 'none';
-        document.getElementById('podGreen').style.display = 'none';
-        document.getElementById('nameRed').innerText = 'فارس الصحراء (بوت)';
-        document.getElementById('gameModeLabel').innerText = '1 ضد 1 سريع';
-      } else {
-        matchPlayers = ['YELLOW', 'BLUE', 'RED', 'GREEN'];
-        document.getElementById('podBlue').style.display = 'flex';
-        document.getElementById('podGreen').style.display = 'flex';
-        document.getElementById('nameRed').innerText = 'أمير النرد';
-        document.getElementById('gameModeLabel').innerText = '4 لاعبين';
-      }
+  var BASE_SLOTS = {
+    BLUE: [[2.2, 2.2], [3.8, 2.2], [2.2, 3.8], [3.8, 3.8]],
+    RED: [[11.2, 2.2], [12.8, 2.2], [11.2, 3.8], [12.8, 3.8]],
+    GREEN: [[11.2, 11.2], [12.8, 11.2], [11.2, 12.8], [12.8, 12.8]],
+    YELLOW: [[2.2, 11.2], [3.8, 11.2], [2.2, 12.8], [3.8, 12.8]]
+  };
 
-      document.getElementById('matchPotInfo').innerText = 'الجائزة: 🪙 ' + (currentBet * matchPlayers.length * 0.9).toFixed(0);
+  var matchPlayers = [], currentTurnIndex = 0, diceValue = null, isRolling = false;
+  var hasMovedInTurn = false, rerollCost = 1, consecutiveSixes = 0;
+  var turnTime = 15, timerInterval = null;
+  var pawns = { BLUE: [], RED: [], GREEN: [], YELLOW: [] };
 
-      var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
-      for (var i = 0; i < colors.length; i++) {
-        var c = colors[i];
-        pawnsState[c] = [
-          { id: 0, state: 'BASE', trackIndex: -1, stretchStep: -1 },
-          { id: 1, state: 'BASE', trackIndex: -1, stretchStep: -1 },
-          { id: 2, state: 'BASE', trackIndex: -1, stretchStep: -1 },
-          { id: 3, state: 'BASE', trackIndex: -1, stretchStep: -1 }
-        ];
-      }
-
-      currentTurnIndex = 0;
-      diceValue = null;
-      isDiceRolling = false;
-      hasMovedPieceInTurn = false;
-      rerollCostGems = 1;
-      consecutiveSixes = 0;
-      consecutiveMisses = { YELLOW: 0, RED: 0, BLUE: 0, GREEN: 0 };
-      renderBoard();
-      startTurn();
+  function initMatch(mode) {
+    if (mode === 'computer' || mode === 'friends') {
+      matchPlayers = ['YELLOW', 'RED'];
+      document.getElementById('badgeBlue').style.display = 'none';
+      document.getElementById('badgeGreen').style.display = 'none';
+    } else {
+      matchPlayers = ['YELLOW', 'BLUE', 'RED', 'GREEN'];
+      document.getElementById('badgeBlue').style.display = 'flex';
+      document.getElementById('badgeGreen').style.display = 'flex';
     }
 
-    function startTurn() {
-      clearTurnTimer();
-      var activeColor = matchPlayers[currentTurnIndex];
-      hasMovedPieceInTurn = false;
-      rerollCostGems = 1;
-      diceValue = null;
-
-      var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
-      for (var i = 0; i < colors.length; i++) {
-        var c = colors[i];
-        var pod = document.getElementById('pod' + capitalize(c));
-        if (pod) pod.classList.toggle('active-turn', c === activeColor);
-      }
-
-      hideRerollBtn();
-
-      var isMyTurn = (activeColor === 'YELLOW');
-      var hint = document.getElementById('turnHint');
-      var diceEl = document.getElementById('gameDice');
-
-      diceEl.innerText = '🎲';
-      diceEl.style.cursor = isMyTurn ? 'pointer' : 'default';
-
-      if (isMyTurn) {
-        hint.innerText = '🎲 دورك الآن! اضغط على النرد لرميه';
-        hint.style.color = '#FFD700';
-      } else {
-        hint.innerText = '⏳ جاري انتظار دور: ' + getPlayerArabicName(activeColor) + '...';
-        hint.style.color = '#94A3B8';
-      }
-
-      runTurnCountdown(activeColor);
-
-      if (!isMyTurn) {
-        setTimeout(function() {
-          if (matchPlayers[currentTurnIndex] === activeColor) executeBotTurn(activeColor);
-        }, 1200);
-      }
-    }
-
-    function runTurnCountdown(color) {
-      turnTimeSeconds = 15;
-      updateTimerCircle(color, 15);
-
-      turnTimerInterval = setInterval(function() {
-        turnTimeSeconds -= 0.1;
-        updateTimerCircle(color, turnTimeSeconds);
-        if (turnTimeSeconds <= 0) {
-          clearTurnTimer();
-          handleTimeout(color);
-        }
-      }, 100);
-    }
-
-    function updateTimerCircle(color, secondsLeft) {
-      var circle = document.getElementById('timer' + capitalize(color));
-      if (!circle) return;
-      var fraction = Math.max(0, secondsLeft / 15);
-      circle.style.strokeDashoffset = 100 - (fraction * 100);
-      if (fraction < 0.25) circle.style.stroke = '#EF4444';
-      else if (fraction < 0.5) circle.style.stroke = '#F59E0B';
-      else circle.style.stroke = '#10B981';
-    }
-
-    function clearTurnTimer() {
-      if (turnTimerInterval) {
-        clearInterval(turnTimerInterval);
-        turnTimerInterval = null;
-      }
-    }
-
-    function handleTimeout(color) {
-      consecutiveMisses[color] = (consecutiveMisses[color] || 0) + 1;
-      if (color === 'YELLOW') {
-        if (consecutiveMisses[color] >= 3) {
-          alert('تم اعتبارك خاسراً لعدم التفاعل لمدة 3 أدوار متتالية!');
-          navigateToTab('home');
-          return;
-        }
-        autoPlayTurn(color);
-      } else {
-        advanceTurn();
-      }
-    }
-
-    function autoPlayTurn(color) {
-      if (diceValue === null) {
-        diceValue = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('gameDice').innerText = diceValue;
-      }
-      var validPawns = getValidMovesForColor(color, diceValue);
-      if (validPawns.length > 0) movePawn(color, validPawns[0].id, diceValue);
-      else advanceTurn();
-    }
-
-    function advanceTurn() {
-      clearTurnTimer();
-      hideRerollBtn();
-      if (checkWin(matchPlayers[currentTurnIndex])) {
-        handlePlayerWon(matchPlayers[currentTurnIndex]);
-        return;
-      }
-      currentTurnIndex = (currentTurnIndex + 1) % matchPlayers.length;
-      startTurn();
-    }
-
-    function handleUserDiceClick() {
-      var activeColor = matchPlayers[currentTurnIndex];
-      if (activeColor !== 'YELLOW' || isDiceRolling) return;
-      if (diceValue !== null && !hasMovedPieceInTurn) return;
-      rollDice(activeColor);
-    }
-
-    function rollDice(color) {
-      isDiceRolling = true;
-      haptic('medium');
-      var diceEl = document.getElementById('gameDice');
-      diceEl.classList.add('rolling');
-
-      var rolls = 0;
-      var interval = setInterval(function() {
-        rolls++;
-        diceEl.innerText = Math.floor(Math.random() * 6) + 1;
-        if (rolls > 8) {
-          clearInterval(interval);
-          isDiceRolling = false;
-          diceEl.classList.remove('rolling');
-          var finalNum = Math.floor(Math.random() * 6) + 1;
-          diceValue = finalNum;
-          diceEl.innerText = finalNum;
-          haptic('heavy');
-          processRolledDice(color, finalNum);
-        }
-      }, 55);
-    }
-
-    function processRolledDice(color, num) {
-      if (num === 6) {
-        consecutiveSixes++;
-        if (consecutiveSixes >= 3) {
-          consecutiveSixes = 0;
-          if (color === 'YELLOW') {
-            alert('قانون لودو ستار: حصلت على الرقم 6 ثلاث مرات متتالية! تم إلغاء دورك عقاباً على التوالي.');
-          }
-          advanceTurn();
-          return;
-        }
-      } else {
-        consecutiveSixes = 0;
-      }
-
-      if (color === 'YELLOW') showRerollBtn();
-
-      var valid = getValidMovesForColor(color, num);
-      if (valid.length === 0) {
-        if (color === 'YELLOW') {
-          document.getElementById('turnHint').innerText = 'لا توجد حركات متاحة للرقم (' + num + ')!';
-        }
-        setTimeout(advanceTurn, 1200);
-      } else if (valid.length === 1 && color !== 'YELLOW') {
-        setTimeout(function() { movePawn(color, valid[0].id, num); }, 600);
-      } else {
-        if (color === 'YELLOW') {
-          document.getElementById('turnHint').innerText = 'انقر على إحدى قطعك الصفراء المضيئة لتحريكها (' + num + ') خطوات!';
-          renderBoard();
-        }
-      }
-    }
-
-    function showRerollBtn() {
-      var btn = document.getElementById('rerollBtn');
-      document.getElementById('rerollCostLabel').innerText = '💎 ' + rerollCostGems;
-      btn.classList.add('visible');
-    }
-
-    function hideRerollBtn() {
-      document.getElementById('rerollBtn').classList.remove('visible');
-    }
-
-    function handleRerollClick() {
-      if (hasMovedPieceInTurn) return;
-      if (gems < rerollCostGems) {
-        alert('لا تمتلك رصيد كافٍ من الجواهر! تكلفة الإعادة هي ' + rerollCostGems + ' 💎. العب عجلة الحظ لكسب الجواهر!');
-        return;
-      }
-      gems -= rerollCostGems;
-      rerollCostGems *= 2;
-      updateCurrencyUI();
-      haptic('heavy');
-      rollDice('YELLOW');
-    }
-
-    function getValidMovesForColor(color, steps) {
-      var pawns = pawnsState[color];
-      var valid = [];
-      for (var i = 0; i < pawns.length; i++) {
-        var pawn = pawns[i];
-        if (pawn.state === 'GOAL') continue;
-        if (pawn.state === 'BASE') {
-          if (steps === 6) valid.push(pawn);
-          continue;
-        }
-        if (pawn.state === 'HOME_STRETCH') {
-          if (pawn.stretchStep + steps <= 5) valid.push(pawn);
-          continue;
-        }
-        if (pawn.state === 'TRACK') valid.push(pawn);
-      }
-      return valid;
-    }
-
-    function movePawn(color, pawnId, steps) {
-      hideRerollBtn();
-      hasMovedPieceInTurn = true;
-      var pawn = null;
-      for (var i = 0; i < pawnsState[color].length; i++) {
-        if (pawnsState[color][i].id === pawnId) { pawn = pawnsState[color][i]; break; }
-      }
-      if (!pawn) return;
-      haptic('medium');
-
-      var grantBonusRoll = false;
-
-      if (pawn.state === 'BASE' && steps === 6) {
-        pawn.state = 'TRACK';
-        pawn.trackIndex = COLOR_CONFIG[color].startIndex;
-        checkCaptures(color, pawn.trackIndex);
-        grantBonusRoll = true;
-      } else if (pawn.state === 'TRACK') {
-        var homeEntry = COLOR_CONFIG[color].homeEntryIndex;
-        var cur = pawn.trackIndex, willEnterHome = false, stretchSteps = 0;
-        for (var s = 1; s <= steps; s++) {
-          if (cur === homeEntry) {
-            willEnterHome = true;
-            stretchSteps = steps - s;
-            break;
-          }
-          cur = (cur + 1) % 52;
-        }
-        if (willEnterHome) {
-          if (stretchSteps === 5) {
-            pawn.state = 'GOAL';
-            grantBonusRoll = true;
-          } else if (stretchSteps < 5) {
-            pawn.state = 'HOME_STRETCH';
-            pawn.stretchStep = stretchSteps;
-          }
-        } else {
-          pawn.trackIndex = cur;
-          var captured = checkCaptures(color, pawn.trackIndex);
-          if (captured) grantBonusRoll = true;
-        }
-      } else if (pawn.state === 'HOME_STRETCH') {
-        var nextStep = pawn.stretchStep + steps;
-        if (nextStep === 5) {
-          pawn.state = 'GOAL';
-          grantBonusRoll = true;
-        } else if (nextStep < 5) {
-          pawn.stretchStep = nextStep;
-        }
-      }
-
-      if (steps === 6) grantBonusRoll = true;
-      renderBoard();
-
-      if (checkWin(color)) {
-        handlePlayerWon(color);
-        return;
-      }
-
-      if (grantBonusRoll) {
-        diceValue = null;
-        hasMovedPieceInTurn = false;
-        if (color === 'YELLOW') {
-          document.getElementById('turnHint').innerText = '🎉 رمية بونص إضافية مجانية! ارمِ النرد مجدداً';
-        }
-        if (color !== 'YELLOW') {
-          setTimeout(function() { executeBotTurn(color); }, 1000);
-        }
-      } else {
-        advanceTurn();
-      }
-    }
-
-    function checkCaptures(killerColor, trackIdx) {
-      if (SAFE_STARS.indexOf(trackIdx) !== -1) return false;
-      var hasCaptured = false;
-      var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
-      for (var i = 0; i < colors.length; i++) {
-        var otherColor = colors[i];
-        if (otherColor === killerColor) continue;
-        for (var j = 0; j < pawnsState[otherColor].length; j++) {
-          var otherPawn = pawnsState[otherColor][j];
-          if (otherPawn.state === 'TRACK' && otherPawn.trackIndex === trackIdx) {
-            otherPawn.state = 'BASE';
-            otherPawn.trackIndex = -1;
-            hasCaptured = true;
-            haptic('heavy');
-            showFloatingText('💥 تم أكل القطعة!');
-          }
-        }
-      }
-      return hasCaptured;
-    }
-
-    function checkWin(color) {
-      for (var i = 0; i < pawnsState[color].length; i++) {
-        if (pawnsState[color][i].state !== 'GOAL') return false;
-      }
-      return true;
-    }
-
-    function handlePlayerWon(winnerColor) {
-      clearTurnTimer();
-      var modal = document.getElementById('endGameModal');
-      var title = document.getElementById('endModalTitle');
-      var desc = document.getElementById('endModalDesc');
-      var icon = document.getElementById('endModalIcon');
-
-      if (winnerColor === 'YELLOW') {
-        var prize = Math.floor(currentBet * matchPlayers.length * 0.9);
-        tokens += prize;
-        winsCount++;
-        matchesCount++;
-        updateCurrencyUI();
-        document.getElementById('statWins').innerText = winsCount;
-        document.getElementById('statMatches').innerText = matchesCount;
-        icon.innerText = '🏆';
-        title.innerText = 'مبروك! فوز ملكي ساحق!';
-        desc.innerText = 'لقد تغلبت على جميع الخصوم وربحت 🪙 ' + prize.toLocaleString() + ' توكن!';
-      } else {
-        matchesCount++;
-        document.getElementById('statMatches').innerText = matchesCount;
-        icon.innerText = '💔';
-        title.innerText = 'حظ أوفر في المرة القادمة!';
-        desc.innerText = 'فاز بالمباراة: ' + getPlayerArabicName(winnerColor);
-      }
-      modal.classList.add('active');
-    }
-
-    function executeBotTurn(botColor) {
-      rollDice(botColor);
-      setTimeout(function() {
-        var valid = getValidMovesForColor(botColor, diceValue);
-        if (valid.length > 0) {
-          var chosen = valid[0];
-          for (var i = 0; i < valid.length; i++) {
-            if (valid[i].state === 'BASE') { chosen = valid[i]; break; }
-          }
-          movePawn(botColor, chosen.id, diceValue);
-        } else {
-          advanceTurn();
-        }
-      }, 1000);
-    }
-
-    // Canvas Board Drawing
-    var canvas = document.getElementById('ludoCanvas');
-    var ctx = canvas.getContext('2d');
-    var CELL = 600 / 15;
-
-    function renderBoard() {
-      ctx.clearRect(0, 0, 600, 600);
-      drawYard(0, 0, CELL * 6, '#0288D1');
-      drawYard(CELL * 9, 0, CELL * 6, '#E53935');
-      drawYard(CELL * 9, CELL * 9, CELL * 6, '#43A047');
-      drawYard(0, CELL * 9, CELL * 6, '#FBC02D');
-
-      ctx.fillStyle = "#FFFFFF";
-      ctx.strokeStyle = "#CBD5E1";
-      ctx.lineWidth = 1.2;
-
-      for (var r = 0; r < 15; r++) {
-        for (var c = 0; c < 15; c++) {
-          var inYard = (r < 6 && c < 6) || (r < 6 && c > 8) || (r > 8 && c < 6) || (r > 8 && c > 8);
-          var inCenter = (r >= 6 && r <= 8 && c >= 6 && c <= 8);
-          if (!inYard && !inCenter) {
-            ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
-            ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
-          }
-        }
-      }
-
-      for (var c1 = 1; c1 <= 5; c1++) drawCell(c1, 7, '#0288D1');
-      for (var r1 = 1; r1 <= 5; r1++) drawCell(7, r1, '#E53935');
-      for (var c2 = 9; c2 <= 13; c2++) drawCell(c2, 7, '#43A047');
-      for (var r2 = 9; r2 <= 13; r2++) drawCell(7, r2, '#FBC02D');
-
-      drawCell(1, 6, '#0288D1');
-      drawCell(8, 1, '#E53935');
-      drawCell(13, 8, '#43A047');
-      drawCell(6, 13, '#FBC02D');
-
-      for (var s = 0; s < SAFE_STARS.length; s++) {
-        var coord = COMMON_PATH[SAFE_STARS[s]];
-        drawStar(coord[0], coord[1]);
-      }
-
-      drawCenterTriangles();
-      drawAllPawns();
-    }
-
-    function drawYard(x, y, size, color) {
-      ctx.fillStyle = color;
-      ctx.roundRect(x, y, size, size, 18);
-      ctx.fill();
-
-      var margin = size * 0.14, innerSize = size - (margin * 2);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.roundRect(x + margin, y + margin, innerSize, innerSize, 14);
-      ctx.fill();
-
-      var slots = [
-        { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.3 },
-        { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.3 },
-        { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.7 },
-        { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.7 }
+    var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
+    for (var i = 0; i < colors.length; i++) {
+      var c = colors[i];
+      pawns[c] = [
+        { id: 0, state: 'BASE', trackIndex: -1, stretchStep: -1 },
+        { id: 1, state: 'BASE', trackIndex: -1, stretchStep: -1 },
+        { id: 2, state: 'BASE', trackIndex: -1, stretchStep: -1 },
+        { id: 3, state: 'BASE', trackIndex: -1, stretchStep: -1 }
       ];
-
-      for (var i = 0; i < slots.length; i++) {
-        var slot = slots[i];
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(slot.cx, slot.cy, innerSize * 0.18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(0,0,0,0.15)";
-        ctx.stroke();
-      }
     }
 
-    function drawCell(c, r, color) {
-      ctx.fillStyle = color;
-      ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
-      ctx.strokeStyle = "rgba(255,255,255,0.6)";
-      ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
+    currentTurnIndex = 0;
+    diceValue = null;
+    isRolling = false;
+    hasMovedInTurn = false;
+    rerollCost = 1;
+    consecutiveSixes = 0;
+    renderBoard();
+    startTurn();
+  }
+
+  function startTurn() {
+    clearTurnTimer();
+    var activeColor = matchPlayers[currentTurnIndex];
+    hasMovedInTurn = false;
+    rerollCost = 1;
+    diceValue = null;
+
+    var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
+    for (var i = 0; i < colors.length; i++) {
+      var c = colors[i];
+      var badge = document.getElementById('badge' + capitalize(c));
+      if (badge) badge.classList.toggle('turn-active', c === activeColor);
     }
 
-    function drawStar(col, row) {
-      var cx = (col + 0.5) * CELL, cy = (row + 0.5) * CELL;
-      ctx.fillStyle = "#FFD700";
-      ctx.font = "20px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("⭐", cx, cy);
+    hideReroll();
+    var isMyTurn = (activeColor === 'YELLOW');
+    var tip = document.getElementById('gameTurnTip');
+    var diceEl = document.getElementById('ludoDice');
+
+    diceEl.innerText = '🎲';
+    diceEl.style.cursor = isMyTurn ? 'pointer' : 'default';
+
+    if (isMyTurn) {
+      tip.innerText = '🎲 Your Turn! Tap the dice to roll';
+      tip.style.color = '#FFD54F';
+    } else {
+      tip.innerText = '⏳ Waiting for ' + activeColor + '...';
+      tip.style.color = '#90CAF9';
     }
 
-    function drawCenterTriangles() {
-      var cx = 7.5 * CELL, cy = 7.5 * CELL;
-      ctx.fillStyle = "#0288D1";
-      ctx.beginPath();
-      ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(6*CELL, 9*CELL); ctx.fill();
+    runTurnTimer(activeColor);
 
-      ctx.fillStyle = "#E53935";
-      ctx.beginPath();
-      ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 6*CELL); ctx.fill();
+    if (!isMyTurn) {
+      setTimeout(function() {
+        if (matchPlayers[currentTurnIndex] === activeColor) botTurn(activeColor);
+      }, 1200);
+    }
+  }
 
-      ctx.fillStyle = "#43A047";
-      ctx.beginPath();
-      ctx.moveTo(9*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+  function runTurnTimer(color) {
+    turnTime = 15;
+    updateTimerCircle(color, 15);
+    timerInterval = setInterval(function() {
+      turnTime -= 0.1;
+      updateTimerCircle(color, turnTime);
+      if (turnTime <= 0) {
+        clearTurnTimer();
+        advanceTurn();
+      }
+    }, 100);
+  }
 
-      ctx.fillStyle = "#FBC02D";
-      ctx.beginPath();
-      ctx.moveTo(6*CELL, 9*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+  function updateTimerCircle(color, sec) {
+    var c = document.getElementById('t' + capitalize(color));
+    if (!c) return;
+    var frac = Math.max(0, sec / 15);
+    c.style.strokeDashoffset = 100 - (frac * 100);
+    if (frac < 0.25) c.style.stroke = '#E53935';
+    else if (frac < 0.5) c.style.stroke = '#FB8C00';
+    else c.style.stroke = '#00E676';
+  }
+
+  function clearTurnTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  }
+
+  function advanceTurn() {
+    clearTurnTimer();
+    hideReroll();
+    if (checkWinner(matchPlayers[currentTurnIndex])) {
+      showVictory(matchPlayers[currentTurnIndex]);
+      return;
+    }
+    currentTurnIndex = (currentTurnIndex + 1) % matchPlayers.length;
+    startTurn();
+  }
+
+  function handleDiceTap() {
+    var activeColor = matchPlayers[currentTurnIndex];
+    if (activeColor !== 'YELLOW' || isRolling) return;
+    if (diceValue !== null && !hasMovedInTurn) return;
+    rollDice(activeColor);
+  }
+
+  function rollDice(color) {
+    isRolling = true;
+    haptic('medium');
+    var diceEl = document.getElementById('ludoDice');
+    diceEl.classList.add('rolling');
+
+    var rolls = 0;
+    var inter = setInterval(function() {
+      rolls++;
+      diceEl.innerText = Math.floor(Math.random() * 6) + 1;
+      if (rolls > 8) {
+        clearInterval(inter);
+        isRolling = false;
+        diceEl.classList.remove('rolling');
+        var res = Math.floor(Math.random() * 6) + 1;
+        diceValue = res;
+        diceEl.innerText = res;
+        haptic('heavy');
+        processRoll(color, res);
+      }
+    }, 50);
+  }
+
+  function processRoll(color, num) {
+    if (num === 6) {
+      consecutiveSixes++;
+      if (consecutiveSixes >= 3) {
+        consecutiveSixes = 0;
+        alert('Ludo King Rule: 3 consecutive 6s! Turn skipped.');
+        advanceTurn();
+        return;
+      }
+    } else {
+      consecutiveSixes = 0;
     }
 
-    function getPawnScreenCoords(color, pawn) {
-      if (pawn.state === 'BASE') {
-        var slot = BASE_SLOTS[color][pawn.id];
-        return { x: slot[0] * CELL, y: slot[1] * CELL };
-      }
-      if (pawn.state === 'TRACK') {
-        var coord = COMMON_PATH[pawn.trackIndex];
-        return { x: (coord[0] + 0.5) * CELL, y: (coord[1] + 0.5) * CELL };
-      }
-      if (pawn.state === 'HOME_STRETCH') {
-        var coordHome = HOME_STRETCHES[color][pawn.stretchStep];
-        return { x: (coordHome[0] + 0.5) * CELL, y: (coordHome[1] + 0.5) * CELL };
-      }
-      if (pawn.state === 'GOAL') {
-        return { x: 7.5 * CELL, y: 7.5 * CELL };
-      }
-      return { x: 0, y: 0 };
-    }
+    if (color === 'YELLOW') showReroll();
 
-    function drawAllPawns() {
-      var colorMap = { BLUE: '#0288D1', RED: '#E53935', GREEN: '#43A047', YELLOW: '#FBC02D' };
-      var activeColor = matchPlayers[currentTurnIndex];
-      var validYellow = [];
-      if (activeColor === 'YELLOW' && diceValue !== null && !hasMovedPieceInTurn) {
-        var valMoves = getValidMovesForColor('YELLOW', diceValue);
-        for (var v = 0; v < valMoves.length; v++) validYellow.push(valMoves[v].id);
-      }
-
-      var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
-      for (var i = 0; i < colors.length; i++) {
-        var clr = colors[i];
-        for (var j = 0; j < pawnsState[clr].length; j++) {
-          var pawn = pawnsState[clr][j];
-          if (pawn.state === 'GOAL') continue;
-          var pos = getPawnScreenCoords(clr, pawn);
-
-          if (clr === 'YELLOW' && validYellow.indexOf(pawn.id) !== -1) {
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, CELL * 0.46, 0, Math.PI * 2);
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-          }
-
-          ctx.beginPath();
-          ctx.arc(pos.x, pos.y, CELL * 0.36, 0, Math.PI * 2);
-          ctx.fillStyle = colorMap[clr];
-          ctx.fill();
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = '#FFFFFF';
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.arc(pos.x - 3, pos.y - 3, CELL * 0.15, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,255,255,0.7)';
-          ctx.fill();
-        }
+    var valid = getValidMoves(color, num);
+    if (valid.length === 0) {
+      setTimeout(advanceTurn, 1000);
+    } else if (valid.length === 1 && color !== 'YELLOW') {
+      setTimeout(function() { movePiece(color, valid[0].id, num); }, 600);
+    } else {
+      if (color === 'YELLOW') {
+        document.getElementById('gameTurnTip').innerText = 'Tap a glowing Yellow piece to move (' + num + ') steps!';
+        renderBoard();
       }
     }
+  }
 
-    // Touch Handling on Board Canvas
-    canvas.addEventListener('pointerdown', function(e) {
-      var activeColor = matchPlayers[currentTurnIndex];
-      if (activeColor !== 'YELLOW') return;
-      if (diceValue === null || hasMovedPieceInTurn) return;
+  function showReroll() {
+    var btn = document.getElementById('rerollBtn');
+    document.getElementById('rerollCost').innerText = '💎 ' + rerollCost;
+    btn.classList.add('show');
+  }
 
-      var rect = canvas.getBoundingClientRect();
-      var scaleX = canvas.width / rect.width;
-      var scaleY = canvas.height / rect.height;
-      var touchX = (e.clientX - rect.left) * scaleX;
-      var touchY = (e.clientY - rect.top) * scaleY;
+  function hideReroll() {
+    document.getElementById('rerollBtn').classList.remove('show');
+  }
 
-      var validPawns = getValidMovesForColor('YELLOW', diceValue);
-      for (var i = 0; i < validPawns.length; i++) {
-        var pawn = validPawns[i];
-        var pos = getPawnScreenCoords('YELLOW', pawn);
-        var dist = Math.hypot(touchX - pos.x, touchY - pos.y);
-        if (dist <= CELL * 0.7) {
-          movePawn('YELLOW', pawn.id, diceValue);
+  function handleReroll() {
+    if (hasMovedInTurn) return;
+    if (gems < rerollCost) {
+      alert('Not enough Gems! Gems can be won on the Lucky Wheel 🎡');
+      return;
+    }
+    gems -= rerollCost;
+    rerollCost *= 2;
+    updateCurrencies();
+    haptic('heavy');
+    rollDice('YELLOW');
+  }
+
+  function getValidMoves(color, steps) {
+    var list = pawns[color];
+    var valid = [];
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (p.state === 'GOAL') continue;
+      if (p.state === 'BASE') {
+        if (steps === 6) valid.push(p);
+        continue;
+      }
+      if (p.state === 'HOME_STRETCH') {
+        if (p.stretchStep + steps <= 5) valid.push(p);
+        continue;
+      }
+      if (p.state === 'TRACK') valid.push(p);
+    }
+    return valid;
+  }
+
+  function movePiece(color, pawnId, steps) {
+    hideReroll();
+    hasMovedInTurn = true;
+    var p = null;
+    for (var i = 0; i < pawns[color].length; i++) {
+      if (pawns[color][i].id === pawnId) { p = pawns[color][i]; break; }
+    }
+    if (!p) return;
+    haptic('medium');
+
+    var bonusRoll = false;
+
+    if (p.state === 'BASE' && steps === 6) {
+      p.state = 'TRACK';
+      p.trackIndex = COLOR_CONFIG[color].startIndex;
+      checkCapture(color, p.trackIndex);
+      bonusRoll = true;
+    } else if (p.state === 'TRACK') {
+      var homeEntry = COLOR_CONFIG[color].homeEntryIndex;
+      var cur = p.trackIndex, enterHome = false, stSteps = 0;
+      for (var s = 1; s <= steps; s++) {
+        if (cur === homeEntry) {
+          enterHome = true;
+          stSteps = steps - s;
           break;
         }
+        cur = (cur + 1) % 52;
       }
-    });
-
-    // Mining Logic
-    var miningTaps = 0;
-    function handleMiningClick(e) {
-      haptic('medium');
-      miningTaps = (miningTaps + 1) % 4;
-      document.getElementById('miningTapsLabel').innerText = miningTaps;
-      document.getElementById('miningProgressBar').style.width = ((miningTaps / 4) * 100) + '%';
-
-      var rect = e.target.getBoundingClientRect();
-      var fl = document.createElement('div');
-      fl.style.position = 'fixed';
-      fl.style.left = ((e.clientX || rect.left + 50) - 20) + 'px';
-      fl.style.top = ((e.clientY || rect.top) - 40) + 'px';
-      fl.style.fontWeight = '900';
-      fl.style.color = '#FFD700';
-      fl.style.fontSize = '22px';
-      fl.style.zIndex = '9999';
-
-      if (miningTaps === 0) {
-        tokens += 1;
-        updateCurrencyUI();
-        fl.innerText = '+1 🪙';
-        document.getElementById('miningProgressBar').style.width = '100%';
-        setTimeout(function() { document.getElementById('miningProgressBar').style.width = '0%'; }, 200);
-      } else {
-        fl.innerText = '⛏️ ' + miningTaps + '/4';
-      }
-      document.body.appendChild(fl);
-      setTimeout(function() { fl.remove(); }, 900);
-    }
-
-    // Wheel Logic
-    var wheelCanvas = document.getElementById('wheelCanvas');
-    var wctx = wheelCanvas.getContext('2d');
-    var prizes = ["💎 5", "🪙 200", "💎 10", "🪙 500", "💎 25", "🪙 100", "💎 50", "🪙 1,000"];
-    var wheelAngle = 0, isSpinningWheel = false;
-
-    function drawWheel(angle) {
-      var numSegments = prizes.length, segAngle = (Math.PI * 2) / numSegments;
-      wctx.clearRect(0, 0, 300, 300);
-      for (var i = 0; i < numSegments; i++) {
-        var start = angle + i * segAngle, end = start + segAngle;
-        wctx.beginPath(); wctx.moveTo(150, 150); wctx.arc(150, 150, 150, start, end);
-        wctx.fillStyle = i % 2 === 0 ? "#1E293B" : "#0F172A"; wctx.fill();
-        wctx.strokeStyle = "#FFD700"; wctx.lineWidth = 2; wctx.stroke();
-        wctx.save(); wctx.translate(150, 150); wctx.rotate(start + segAngle / 2);
-        wctx.textAlign = "right";
-        wctx.fillStyle = prizes[i].indexOf("💎") !== -1 ? "#38BDF8" : "#FFD700";
-        wctx.font = "bold 15px system-ui, sans-serif";
-        wctx.fillText(prizes[i], 130, 5);
-        wctx.restore();
-      }
-      wctx.beginPath(); wctx.arc(150, 150, 22, 0, Math.PI * 2); wctx.fillStyle = "#FFD700"; wctx.fill();
-    }
-    drawWheel(0);
-
-    function spinLuckyWheel() {
-      if (isSpinningWheel) return;
-      isSpinningWheel = true; haptic('heavy');
-      var speed = Math.random() * 0.2 + 0.35;
-      var anim = function() {
-        wheelAngle += speed; speed -= 0.003; drawWheel(wheelAngle);
-        if (speed > 0) requestAnimationFrame(anim);
-        else {
-          isSpinningWheel = false; gems += 15; updateCurrencyUI();
-          haptic('heavy');
-          alert('🎉 مبروك! ربحت 15 جوهرة ملكية 💎!');
+      if (enterHome) {
+        if (stSteps === 5) {
+          p.state = 'GOAL';
+          bonusRoll = true;
+        } else if (stSteps < 5) {
+          p.state = 'HOME_STRETCH';
+          p.stretchStep = stSteps;
         }
-      };
-      requestAnimationFrame(anim);
+      } else {
+        p.trackIndex = cur;
+        var captured = checkCapture(color, p.trackIndex);
+        if (captured) bonusRoll = true;
+      }
+    } else if (p.state === 'HOME_STRETCH') {
+      var nxt = p.stretchStep + steps;
+      if (nxt === 5) {
+        p.state = 'GOAL';
+        bonusRoll = true;
+      } else if (nxt < 5) {
+        p.stretchStep = nxt;
+      }
     }
 
-    function sendEmoji(emoji) { haptic('selection'); showFloatingText(emoji); }
-
-    function showFloatingText(text) {
-      var fl = document.createElement('div');
-      fl.style.position = 'fixed';
-      fl.style.top = '45%';
-      fl.style.left = '50%';
-      fl.style.transform = 'translate(-50%, -50%)';
-      fl.style.fontSize = '32px';
-      fl.style.zIndex = '9999';
-      fl.innerText = text;
-      document.body.appendChild(fl);
-      setTimeout(function() { fl.remove(); }, 1200);
-    }
-
-    function capitalize(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
-    function getPlayerArabicName(c) {
-      if (c === 'YELLOW') return 'أنت';
-      if (c === 'BLUE') return 'سلطان اللودو';
-      if (c === 'RED') return 'أمير النرد';
-      if (c === 'GREEN') return 'الأسطورة 99';
-      return c;
-    }
-
+    if (steps === 6) bonusRoll = true;
     renderBoard();
-  </script>
+
+    if (checkWinner(color)) {
+      showVictory(color);
+      return;
+    }
+
+    if (bonusRoll) {
+      diceValue = null;
+      hasMovedInTurn = false;
+      if (color === 'YELLOW') {
+        document.getElementById('gameTurnTip').innerText = '🎉 Bonus Roll! Roll the dice again!';
+      } else {
+        setTimeout(function() { botTurn(color); }, 1000);
+      }
+    } else {
+      advanceTurn();
+    }
+  }
+
+  function checkCapture(killer, idx) {
+    if (SAFE_STARS.indexOf(idx) !== -1) return false;
+    var did = false;
+    var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
+    for (var i = 0; i < colors.length; i++) {
+      var other = colors[i];
+      if (other === killer) continue;
+      for (var j = 0; j < pawns[other].length; j++) {
+        var op = pawns[other][j];
+        if (op.state === 'TRACK' && op.trackIndex === idx) {
+          op.state = 'BASE';
+          op.trackIndex = -1;
+          did = true;
+          haptic('heavy');
+          alert('💥 Piece Captured!');
+        }
+      }
+    }
+    return did;
+  }
+
+  function checkWinner(color) {
+    for (var i = 0; i < pawns[color].length; i++) {
+      if (pawns[color][i].state !== 'GOAL') return false;
+    }
+    return true;
+  }
+
+  function showVictory(color) {
+    clearTurnTimer();
+    var modal = document.getElementById('victoryModal');
+    var t = document.getElementById('vicTitle');
+    var m = document.getElementById('vicMsg');
+    var ic = document.getElementById('vicIcon');
+
+    if (color === 'YELLOW') {
+      coins += 2000;
+      updateCurrencies();
+      ic.innerText = '🏆';
+      t.innerText = 'ROYAL VICTORY!';
+      m.innerText = 'Congratulations! You won 🪙 2,000 Coins!';
+    } else {
+      ic.innerText = '💔';
+      t.innerText = 'GAME OVER';
+      m.innerText = 'Winner: ' + color;
+    }
+    modal.classList.add('active');
+  }
+
+  function botTurn(botColor) {
+    rollDice(botColor);
+    setTimeout(function() {
+      var valid = getValidMoves(botColor, diceValue);
+      if (valid.length > 0) {
+        var chosen = valid[0];
+        for (var i = 0; i < valid.length; i++) {
+          if (valid[i].state === 'BASE') { chosen = valid[i]; break; }
+        }
+        movePiece(botColor, chosen.id, diceValue);
+      } else {
+        advanceTurn();
+      }
+    }, 900);
+  }
+
+  var canvas = document.getElementById('ludoCanvas');
+  var ctx = canvas.getContext('2d');
+  var CELL = 600 / 15;
+
+  function renderBoard() {
+    ctx.clearRect(0, 0, 600, 600);
+    drawYard(0, 0, CELL * 6, '#0288D1');
+    drawYard(CELL * 9, 0, CELL * 6, '#E53935');
+    drawYard(CELL * 9, CELL * 9, CELL * 6, '#43A047');
+    drawYard(0, CELL * 9, CELL * 6, '#FBC02D');
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.strokeStyle = "#CBD5E1";
+    ctx.lineWidth = 1.2;
+
+    for (var r = 0; r < 15; r++) {
+      for (var c = 0; c < 15; c++) {
+        var inYard = (r < 6 && c < 6) || (r < 6 && c > 8) || (r > 8 && c < 6) || (r > 8 && c > 8);
+        var inCenter = (r >= 6 && r <= 8 && c >= 6 && c <= 8);
+        if (!inYard && !inCenter) {
+          ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+          ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
+        }
+      }
+    }
+
+    for (var c1 = 1; c1 <= 5; c1++) drawCell(c1, 7, '#0288D1');
+    for (var r1 = 1; r1 <= 5; r1++) drawCell(7, r1, '#E53935');
+    for (var c2 = 9; c2 <= 13; c2++) drawCell(c2, 7, '#43A047');
+    for (var r2 = 9; r2 <= 13; r2++) drawCell(7, r2, '#FBC02D');
+
+    drawCell(1, 6, '#0288D1');
+    drawCell(8, 1, '#E53935');
+    drawCell(13, 8, '#43A047');
+    drawCell(6, 13, '#FBC02D');
+
+    for (var s = 0; s < SAFE_STARS.length; s++) {
+      var coord = COMMON_PATH[SAFE_STARS[s]];
+      drawStar(coord[0], coord[1]);
+    }
+
+    drawCenterTriangles();
+    drawPawns();
+  }
+
+  function drawYard(x, y, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size * 0.48, 0, Math.PI * 2);
+    ctx.fill();
+
+    var margin = size * 0.16, innerSize = size - (margin * 2);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, innerSize * 0.46, 0, Math.PI * 2);
+    ctx.fill();
+
+    var slots = [
+      { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.3 },
+      { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.3 },
+      { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.7 },
+      { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.7 }
+    ];
+
+    for (var i = 0; i < slots.length; i++) {
+      var slot = slots[i];
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(slot.cx, slot.cy, innerSize * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.2)";
+      ctx.stroke();
+    }
+  }
+
+  function drawCell(c, r, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+    ctx.strokeStyle = "rgba(255,255,255,0.6)";
+    ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
+  }
+
+  function drawStar(col, row) {
+    var cx = (col + 0.5) * CELL, cy = (row + 0.5) * CELL;
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("⭐", cx, cy);
+  }
+
+  function drawCenterTriangles() {
+    var cx = 7.5 * CELL, cy = 7.5 * CELL;
+    ctx.fillStyle = "#0288D1";
+    ctx.beginPath();
+    ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(6*CELL, 9*CELL); ctx.fill();
+
+    ctx.fillStyle = "#E53935";
+    ctx.beginPath();
+    ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 6*CELL); ctx.fill();
+
+    ctx.fillStyle = "#43A047";
+    ctx.beginPath();
+    ctx.moveTo(9*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+
+    ctx.fillStyle = "#FBC02D";
+    ctx.beginPath();
+    ctx.moveTo(6*CELL, 9*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+  }
+
+  function getPawnPos(color, p) {
+    if (p.state === 'BASE') {
+      var slot = BASE_SLOTS[color][p.id];
+      return { x: slot[0] * CELL, y: slot[1] * CELL };
+    }
+    if (p.state === 'TRACK') {
+      var coord = COMMON_PATH[p.trackIndex];
+      return { x: (coord[0] + 0.5) * CELL, y: (coord[1] + 0.5) * CELL };
+    }
+    if (p.state === 'HOME_STRETCH') {
+      var cHome = HOME_STRETCHES[color][p.stretchStep];
+      return { x: (cHome[0] + 0.5) * CELL, y: (cHome[1] + 0.5) * CELL };
+    }
+    return { x: 7.5 * CELL, y: 7.5 * CELL };
+  }
+
+  function drawPawns() {
+    var colorMap = { BLUE: '#0288D1', RED: '#E53935', GREEN: '#43A047', YELLOW: '#FBC02D' };
+    var activeColor = matchPlayers[currentTurnIndex];
+    var validYellow = [];
+    if (activeColor === 'YELLOW' && diceValue !== null && !hasMovedInTurn) {
+      var valMoves = getValidMoves('YELLOW', diceValue);
+      for (var v = 0; v < valMoves.length; v++) validYellow.push(valMoves[v].id);
+    }
+
+    var colors = ['BLUE', 'RED', 'GREEN', 'YELLOW'];
+    for (var i = 0; i < colors.length; i++) {
+      var clr = colors[i];
+      for (var j = 0; j < pawns[clr].length; j++) {
+        var p = pawns[clr][j];
+        if (p.state === 'GOAL') continue;
+        var pos = getPawnPos(clr, p);
+
+        if (clr === 'YELLOW' && validYellow.indexOf(p.id) !== -1) {
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, CELL * 0.46, 0, Math.PI * 2);
+          ctx.strokeStyle = '#FFD700';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, CELL * 0.36, 0, Math.PI * 2);
+        ctx.fillStyle = colorMap[clr];
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(pos.x - 3, pos.y - 3, CELL * 0.15, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.fill();
+      }
+    }
+  }
+
+  canvas.addEventListener('pointerdown', function(e) {
+    var activeColor = matchPlayers[currentTurnIndex];
+    if (activeColor !== 'YELLOW' || diceValue === null || hasMovedInTurn) return;
+
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var touchX = (e.clientX - rect.left) * scaleX;
+    var touchY = (e.clientY - rect.top) * scaleY;
+
+    var validMoves = getValidMoves('YELLOW', diceValue);
+    for (var i = 0; i < validMoves.length; i++) {
+      var p = validMoves[i];
+      var pos = getPawnPos('YELLOW', p);
+      var dist = Math.hypot(touchX - pos.x, touchY - pos.y);
+      if (dist <= CELL * 0.7) {
+        movePiece('YELLOW', p.id, diceValue);
+        break;
+      }
+    }
+  });
+
+  var wheelCanvas = document.getElementById('wheelCanvas');
+  var wctx = wheelCanvas.getContext('2d');
+  var wheelPrizes = ["💎 5", "🪙 500", "💎 10", "🪙 1,000", "💎 25", "🪙 2,000", "💎 50", "🪙 5,000"];
+  var wheelAngle = 0, isSpinning = false;
+
+  function drawWheel(angle) {
+    var num = wheelPrizes.length, seg = (Math.PI * 2) / num;
+    wctx.clearRect(0, 0, 300, 300);
+    for (var i = 0; i < num; i++) {
+      var start = angle + i * seg, end = start + seg;
+      wctx.beginPath(); wctx.moveTo(150, 150); wctx.arc(150, 150, 150, start, end);
+      wctx.fillStyle = (i % 2 === 0) ? "#1565C0" : "#0D47A1"; wctx.fill();
+      wctx.strokeStyle = "#FFD54F"; wctx.lineWidth = 2.5; wctx.stroke();
+      wctx.save(); wctx.translate(150, 150); wctx.rotate(start + seg / 2);
+      wctx.textAlign = "right";
+      wctx.fillStyle = wheelPrizes[i].indexOf("💎") !== -1 ? "#00E5FF" : "#FFD54F";
+      wctx.font = "bold 15px 'Fredoka', sans-serif";
+      wctx.fillText(wheelPrizes[i], 132, 5);
+      wctx.restore();
+    }
+    wctx.beginPath(); wctx.arc(150, 150, 22, 0, Math.PI * 2); wctx.fillStyle = "#FFD54F"; wctx.fill();
+  }
+  drawWheel(0);
+
+  function spinWheelAction() {
+    if (isSpinning) return;
+    isSpinning = true; haptic('heavy');
+    var spd = Math.random() * 0.2 + 0.35;
+    var anim = function() {
+      wheelAngle += spd; spd -= 0.003; drawWheel(wheelAngle);
+      if (spd > 0) requestAnimationFrame(anim);
+      else {
+        isSpinning = false; gems += 15; coins += 1000; updateCurrencies();
+        haptic('heavy');
+        alert('🎉 Congratulations! You won 15 Gems 💎 & 1,000 Coins 🪙!');
+      }
+    };
+    requestAnimationFrame(anim);
+  }
+
+  function sendQuickEmoji(em) { haptic('selection'); alert(em); }
+  function capitalize(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
+
+  renderBoard();
+</script>
 </body>
-</html> 
+  </html>
