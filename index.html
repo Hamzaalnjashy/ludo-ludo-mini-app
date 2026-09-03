@@ -1,1 +1,430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Ludo Star Royale</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(180deg, #0288D1 0%, #01579B 50%, #0A192F 100%);
+      --blue-color: #0288D1;
+      --red-color: #E53935;
+      --green-color: #43A047;
+      --yellow-color: #FBC02D;
+      --gold-color: #FFD700;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Cairo', sans-serif; }
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: #FFFFFF;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 70px;
+    }
+    header {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(10, 25, 47, 0.7);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .user-pill { display: flex; align-items: center; gap: 8px; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--gold-color);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; background: #1E293B;
+    }
+    .stats-pill { display: flex; align-items: center; gap: 10px; }
+    .badge {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 16px; padding: 4px 10px;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 4px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    .screen { display: none; width: 100%; max-width: 440px; flex: 1; padding: 10px; flex-direction: column; align-items: center; }
+    .screen.active { display: flex; }
+    .players-top, .players-bottom { width: 100%; display: flex; justify-content: space-between; padding: 4px 6px; }
+    .player-card {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(15, 23, 42, 0.85); border-radius: 12px;
+      padding: 4px 8px; border: 2px solid transparent; font-size: 12px;
+    }
+    .player-card.active-turn {
+      border-color: var(--gold-color);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      transform: scale(1.04);
+    }
+    .player-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .board-container {
+      width: 100%; max-width: 380px; aspect-ratio: 1 / 1;
+      background: #FFFFFF; border-radius: 20px; padding: 6px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      border: 5px solid #29B6F6; margin: 4px 0;
+    }
+    canvas#ludoCanvas { width: 100%; height: 100%; border-radius: 14px; display: block; }
+    .controls-panel { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 0 8px; }
+    .dice-cube {
+      width: 54px; height: 54px; background: #FFFFFF; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 900; color: #1E293B;
+      box-shadow: 0 6px 0 #CBD5E1, 0 10px 18px rgba(0, 0, 0, 0.35);
+      cursor: pointer; border: 2px solid #E2E8F0;
+    }
+    .action-pill {
+      background: rgba(255, 255, 255, 0.15); border-radius: 24px;
+      padding: 8px 16px; font-size: 13px; display: flex; align-items: center;
+      gap: 6px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    /* Mining */
+    .tap-coin {
+      width: 190px; height: 190px;
+      background: radial-gradient(circle, #FFE082 20%, #FFB300 70%, #FF8F00 100%);
+      border-radius: 50%; border: 6px solid #FFF8E1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5); cursor: pointer; margin: 25px auto;
+    }
+    .tap-coin:active { transform: scale(0.92); }
+    .progress-bar-container { width: 80%; background: rgba(255, 255, 255, 0.2); height: 16px; border-radius: 12px; overflow: hidden; margin-top: 10px; }
+    .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FFA000); }
+    /* Wheel */
+    .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+    canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid var(--gold-color); }
+    .wheel-pointer {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 14px solid transparent;
+      border-right: 14px solid transparent; border-top: 24px solid #E53935; z-index: 10;
+    }
+    .spin-btn {
+      background: linear-gradient(135deg, #FFB300, #FF6F00); color: #FFFFFF;
+      font-weight: 700; font-size: 16px; border: none; padding: 12px 32px;
+      border-radius: 24px; cursor: pointer;
+    }
+    /* Nav */
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+      background: rgba(10, 25, 47, 0.95); backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #94A3B8; font-size: 11px; cursor: pointer; }
+    .nav-item.active { color: var(--gold-color); font-weight: 700; }
+    .nav-icon { font-size: 20px; }
+    .floating-text {
+      position: absolute; animation: floatUp 1s ease-out forwards;
+      pointer-events: none; font-weight: 900; color: #FFD700; font-size: 22px; z-index: 200;
+    }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-70px); } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="user-pill">
+      <div class="avatar" id="userAvatar">👑</div>
+      <div>
+        <div style="font-weight: 700; font-size: 13px;" id="userName">اللاعب الملكي</div>
+        <div style="font-size: 10px; color: #38BDF8;">دوري النخبة 🏆</div>
+      </div>
+    </div>
+    <div class="stats-pill">
+      <div class="badge">🪙 <span id="tokenCount">1,000</span></div>
+      <div class="badge">💎 <span id="gemCount">20</span></div>
+    </div>
+  </header>
 
+  <!-- GAME SCREEN -->
+  <div class="screen active" id="gameScreen">
+    <div class="players-top">
+      <div class="player-card" id="cardBlue">
+        <div class="player-avatar" style="background: #0288D1;">🦁</div>
+        <div><div>سلطان اللودو</div><div style="font-size: 9px; color: #94A3B8;">أزرق</div></div>
+      </div>
+      <div class="player-card" id="cardRed">
+        <div class="player-avatar" style="background: #E53935;">🦅</div>
+        <div><div>أمير النرد</div><div style="font-size: 9px; color: #94A3B8;">أحمر</div></div>
+      </div>
+    </div>
+
+    <div class="board-container">
+      <canvas id="ludoCanvas" width="600" height="600"></canvas>
+    </div>
+
+    <div class="players-bottom">
+      <div class="player-card active-turn" id="cardYellow">
+        <div class="player-avatar" style="background: #FBC02D; color: #000;">👑</div>
+        <div><div id="localPlayerLabel">أنت (محلي)</div><div style="font-size: 9px; color: #FCD34D;">أصفر (دورك)</div></div>
+      </div>
+      <div class="player-card" id="cardGreen">
+        <div class="player-avatar" style="background: #43A047;">🐺</div>
+        <div><div>الأسطورة 99</div><div style="font-size: 9px; color: #94A3B8;">أخضر</div></div>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="action-pill" onclick="sendQuickEmoji('🔥')">🔥 حماس</div>
+      <div class="dice-cube" id="diceElement" onclick="handleDiceRoll()">🎲</div>
+      <div class="action-pill" onclick="sendQuickEmoji('😂')">😂 ضحك</div>
+    </div>
+  </div>
+
+  <!-- MINING SCREEN -->
+  <div class="screen" id="miningScreen">
+    <h2 style="margin-top: 15px; font-size: 20px; color: var(--gold-color);">منجم التوكنز الافتراضي ⛏️</h2>
+    <p style="font-size: 13px; color: #CBD5E1; margin-top: 4px;">اضغط 4 مرات للحصول على 1 توكن مجاني!</p>
+    <div class="tap-coin" id="coinButton" onclick="handleMiningTap(event)">
+      <div style="font-size: 45px;">🪙</div>
+      <div style="font-weight: 900; font-size: 18px; color: #78350F; margin-top: 4px;">اضغط واربح</div>
+    </div>
+    <div style="font-size: 14px; font-weight: 700; margin-top: 10px;">النقرات: <span id="tapFraction" style="color: var(--gold-color);">0</span> / 4</div>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- WHEEL SCREEN -->
+  <div class="screen" id="wheelScreen">
+    <h2 style="margin-top: 15px; font-size: 20px; color: var(--gold-color);">عجلة الحظ الملكية 🎡</h2>
+    <p style="font-size: 12px; color: #CBD5E1; margin-top: 4px;">المصدر الحصري لربح الجواهر 💎</p>
+    <div class="wheel-container">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    </div>
+    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">لف العجلة مجاناً 🎁</button>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <div class="nav-item active" onclick="switchTab('game')"><div class="nav-icon">🎲</div><div>اللعبة</div></div>
+    <div class="nav-item" onclick="switchTab('mining')"><div class="nav-icon">⛏️</div><div>منجم التوكنز</div></div>
+    <div class="nav-item" onclick="switchTab('wheel')"><div class="nav-icon">🎡</div><div>عجلة الحظ</div></div>
+  </nav>
+
+  <script>
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (!r) r = 0;
+        var radius = typeof r === 'number' ? r : (r[0] || 0);
+        this.beginPath();
+        this.moveTo(x + radius, y);
+        this.arcTo(x + w, y, x + w, y + h, radius);
+        this.arcTo(x + w, y + h, x, y + h, radius);
+        this.arcTo(x, y + h, x, y, radius);
+        this.arcTo(x, y, x + w, y, radius);
+        this.closePath();
+        return this;
+      };
+    }
+
+    var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+          var u = tg.initDataUnsafe.user;
+          var name = (u.first_name || '') + (u.last_name ? ' ' + u.last_name : '');
+          if (name.trim()) {
+            document.getElementById('userName').innerText = name;
+            document.getElementById('localPlayerLabel').innerText = name;
+          }
+        }
+      } catch(e) {}
+    }
+
+    var tokens = 1000, gems = 20, miningTaps = 0, diceValue = 6, isRolling = false;
+
+    function triggerHaptic() {
+      try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); } catch (e) {}
+    }
+
+    function switchTab(tab) {
+      triggerHaptic();
+      document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.screen').forEach(function(el) { el.classList.remove('active'); });
+      if (tab === 'game') {
+        document.getElementById('gameScreen').classList.add('active');
+        document.querySelectorAll('.nav-item')[0].classList.add('active');
+      } else if (tab === 'mining') {
+        document.getElementById('miningScreen').classList.add('active');
+        document.querySelectorAll('.nav-item')[1].classList.add('active');
+      } else if (tab === 'wheel') {
+        document.getElementById('wheelScreen').classList.add('active');
+        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        drawWheel(wheelAngle);
+      }
+    }
+
+    var canvas = document.getElementById('ludoCanvas');
+    var ctx = canvas.getContext('2d');
+    var BOARD_SIZE = 600, CELL = BOARD_SIZE / 15;
+
+    function renderBoard() {
+      ctx.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
+      drawYard(0, 0, CELL * 6, "#0288D1");
+      drawYard(CELL * 9, 0, CELL * 6, "#E53935");
+      drawYard(CELL * 9, CELL * 9, CELL * 6, "#43A047");
+      drawYard(0, CELL * 9, CELL * 6, "#FBC02D");
+
+      ctx.fillStyle = "#FFFFFF"; ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1.2;
+      for (var r = 0; r < 15; r++) {
+        for (var c = 0; c < 15; c++) {
+          var inYard = (r < 6 && c < 6) || (r < 6 && c > 8) || (r > 8 && c < 6) || (r > 8 && c > 8);
+          var inCenter = (r >= 6 && r <= 8 && c >= 6 && c <= 8);
+          if (!inYard && !inCenter) {
+            ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+            ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
+          }
+        }
+      }
+
+      for (var c = 1; c <= 5; c++) drawCell(c, 7, "#0288D1");
+      for (var r = 1; r <= 5; r++) drawCell(7, r, "#E53935");
+      for (var c = 9; c <= 13; c++) drawCell(c, 7, "#43A047");
+      for (var r = 9; r <= 13; r++) drawCell(7, r, "#FBC02D");
+
+      drawCell(1, 6, "#0288D1"); drawCell(8, 1, "#E53935");
+      drawCell(13, 8, "#43A047"); drawCell(6, 13, "#FBC02D");
+
+      drawStar(6, 2); drawStar(12, 6); drawStar(8, 12); drawStar(2, 8);
+      drawStar(1, 6); drawStar(8, 1); drawStar(13, 8); drawStar(6, 13);
+      drawCenterTriangles();
+      drawPawns();
+    }
+
+    function drawYard(x, y, size, color) {
+      ctx.fillStyle = color; ctx.roundRect(x, y, size, size, 18); ctx.fill();
+      var margin = size * 0.14, innerSize = size - (margin * 2);
+      ctx.fillStyle = "#FFFFFF"; ctx.roundRect(x + margin, y + margin, innerSize, innerSize, 14); ctx.fill();
+      var slots = [
+        { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.3 },
+        { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.3 },
+        { cx: x + margin + innerSize * 0.3, cy: y + margin + innerSize * 0.7 },
+        { cx: x + margin + innerSize * 0.7, cy: y + margin + innerSize * 0.7 }
+      ];
+      for (var i = 0; i < slots.length; i++) {
+        ctx.fillStyle = color; ctx.beginPath();
+        ctx.arc(slots[i].cx, slots[i].cy, innerSize * 0.18, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    function drawCell(c, r, color) {
+      ctx.fillStyle = color; ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+      ctx.strokeStyle = "rgba(255,255,255,0.6)"; ctx.strokeRect(c * CELL, r * CELL, CELL, CELL);
+    }
+
+    function drawStar(col, row) {
+      ctx.fillStyle = "#FFD700"; ctx.font = "20px Cairo, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("⭐", (col + 0.5) * CELL, (row + 0.5) * CELL);
+    }
+
+    function drawCenterTriangles() {
+      var cx = 7.5 * CELL, cy = 7.5 * CELL;
+      ctx.fillStyle = "#0288D1"; ctx.beginPath(); ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(6*CELL, 9*CELL); ctx.fill();
+      ctx.fillStyle = "#E53935"; ctx.beginPath(); ctx.moveTo(6*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 6*CELL); ctx.fill();
+      ctx.fillStyle = "#43A047"; ctx.beginPath(); ctx.moveTo(9*CELL, 6*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+      ctx.fillStyle = "#FBC02D"; ctx.beginPath(); ctx.moveTo(6*CELL, 9*CELL); ctx.lineTo(cx, cy); ctx.lineTo(9*CELL, 9*CELL); ctx.fill();
+    }
+
+    function drawPawns() {
+      var baseCoords = {
+        BLUE: [{c: 2.2, r: 2.2}, {c: 3.8, r: 2.2}, {c: 2.2, r: 3.8}, {c: 3.8, r: 3.8}],
+        RED: [{c: 11.2, r: 2.2}, {c: 12.8, r: 2.2}, {c: 11.2, r: 3.8}, {c: 12.8, r: 3.8}],
+        GREEN: [{c: 11.2, r: 11.2}, {c: 12.8, r: 11.2}, {c: 11.2, r: 12.8}, {c: 12.8, r: 12.8}],
+        YELLOW: [{c: 2.2, r: 11.2}, {c: 3.8, r: 11.2}, {c: 2.2, r: 12.8}, {c: 3.8, r: 12.8}]
+      };
+      var colorMap = { BLUE: "#0288D1", RED: "#E53935", GREEN: "#43A047", YELLOW: "#FBC02D" };
+      for (var clr in baseCoords) {
+        var list = baseCoords[clr];
+        for (var i = 0; i < list.length; i++) {
+          var cx = list[i].c * CELL, cy = list[i].r * CELL;
+          ctx.beginPath(); ctx.arc(cx, cy, CELL * 0.38, 0, Math.PI * 2);
+          ctx.fillStyle = colorMap[clr]; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = "#FFFFFF"; ctx.stroke();
+        }
+      }
+    }
+
+    renderBoard();
+
+    function handleDiceRoll() {
+      if (isRolling) return;
+      isRolling = true; triggerHaptic();
+      var diceEl = document.getElementById('diceElement');
+      var rollCount = 0;
+      var interval = setInterval(function() {
+        rollCount++;
+        diceEl.innerText = Math.floor(Math.random() * 6) + 1;
+        if (rollCount > 8) {
+          clearInterval(interval);
+          diceValue = Math.floor(Math.random() * 6) + 1;
+          diceEl.innerText = diceValue;
+          isRolling = false; triggerHaptic();
+        }
+      }, 60);
+    }
+
+    function handleMiningTap(e) {
+      triggerHaptic();
+      miningTaps = (miningTaps + 1) % 4;
+      document.getElementById('tapFraction').innerText = miningTaps;
+      document.getElementById('progressFill').style.width = ((miningTaps / 4) * 100) + '%';
+      if (miningTaps === 0) {
+        tokens += 1;
+        document.getElementById('tokenCount').innerText = tokens.toLocaleString();
+        document.getElementById('progressFill').style.width = "100%";
+        setTimeout(function() { document.getElementById('progressFill').style.width = "0%"; }, 200);
+      }
+    }
+
+    var wheelCanvas = document.getElementById('wheelCanvas');
+    var wctx = wheelCanvas.getContext('2d');
+    var prizes = ["💎 5", "🪙 200", "💎 10", "🪙 500", "💎 25", "🪙 100", "💎 50", "🪙 1,000"];
+    var wheelAngle = 0, isSpinning = false;
+
+    function drawWheel(angle) {
+      var numSegments = prizes.length, segAngle = (Math.PI * 2) / numSegments;
+      wctx.clearRect(0, 0, 300, 300);
+      for (var i = 0; i < numSegments; i++) {
+        var start = angle + i * segAngle, end = start + segAngle;
+        wctx.beginPath(); wctx.moveTo(150, 150); wctx.arc(150, 150, 150, start, end);
+        wctx.fillStyle = i % 2 === 0 ? "#1E293B" : "#0F172A"; wctx.fill();
+        wctx.strokeStyle = "#FFD700"; wctx.lineWidth = 2; wctx.stroke();
+        wctx.save(); wctx.translate(150, 150); wctx.rotate(start + segAngle / 2);
+        wctx.textAlign = "right"; wctx.fillStyle = prizes[i].indexOf("💎") !== -1 ? "#38BDF8" : "#FFD700";
+        wctx.font = "bold 15px Cairo, sans-serif"; wctx.fillText(prizes[i], 130, 5); wctx.restore();
+      }
+      wctx.beginPath(); wctx.arc(150, 150, 22, 0, Math.PI * 2); wctx.fillStyle = "#FFD700"; wctx.fill();
+    }
+    drawWheel(0);
+
+    function spinWheel() {
+      if (isSpinning) return;
+      isSpinning = true; triggerHaptic();
+      var speed = Math.random() * 0.2 + 0.35;
+      var anim = function() {
+        wheelAngle += speed; speed -= 0.003; drawWheel(wheelAngle);
+        if (speed > 0) { requestAnimationFrame(anim); }
+        else {
+          isSpinning = false; gems += 15;
+          document.getElementById('gemCount').innerText = gems; triggerHaptic();
+        }
+      };
+      requestAnimationFrame(anim);
+    }
+
+    function sendQuickEmoji(emoji) { triggerHaptic(); }
+  </script>
+</body>
+  </html>
