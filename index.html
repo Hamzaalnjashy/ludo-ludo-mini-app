@@ -1541,6 +1541,8 @@
   };
 
   var matchPlayers = [], currentTurnIndex = 0, diceValue = null, isRolling = false;
+
+  var matchPlayers = [], currentTurnIndex = 0, diceValue = null, isRolling = false;
   var hasMovedInTurn = false, rerollCost = 1, consecutiveSixes = 0;
   var turnTime = 15, timerInterval = null;
   var pawns = { BLUE: [], RED: [], GREEN: [], YELLOW: [] };
@@ -1898,7 +1900,7 @@
         advanceTurn();
       }
     }, 900);
-  }/* ================= CANVAS DRAWING: GOOGLE MAPS LOCATION PINS 📍 ================= */
+  } /* ================= CANVAS DRAWING: GOOGLE MAPS LOCATION PINS 📍 ================= */
   var canvas = document.getElementById('ludoCanvas');
   var ctx = canvas.getContext('2d');
   var CELL = 600 / 15;
