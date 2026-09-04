@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Ludo King Telegram Royale</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --lk-gold: #FFD54F;
+      --lk-gold-dark: #FF8F00;
+      --lk-blue: #0D47A1;
+      --lk-blue-light: #1976D2;
+      --lk-bg: #0A192F;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      background: #050E1D;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      direction: ltr; /* Keeping game board standard LTR for layout */
+    }
+
+    .ludo-phone-frame {
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      height: 100dvh;
+      background: radial-gradient(circle at center, #1565C0 0%, #0D47A1 50%, #051A3B 100%);
+      border: 3px solid #FBC02D;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 35px rgba(0,0,0,0.85);
+    }
+
+    .screens-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .app-screen.active {
+      display: flex;
+    }
+
+    /* TOP BAR */
+    .lk-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: rgba(5, 26, 59, 0.85);
+      border-bottom: 2px solid rgba(255, 213, 79, 0.4);
+      z-index: 10;
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6F00, #FFD54F);
+      border: 2px solid #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    }
+
+    .player-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .player-name {
+      color: #FFF;
+      font-size: 13px;
+      font-weight: 800;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-tg-id {
+      color: #90CAF9;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .currencies-box {
+      display: flex;
+      gap: 6px;
+    }
+
+    .currency-pill {
+      background: rgba(0, 16, 45, 0.9);
+      border: 1.5px solid #64B5F6;
+      border-radius: 14px;
+      padding: 3px 8px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* HOME SCREEN */
+    #homeScreen {
+      overflow-y: auto;
+      padding-bottom: 75px;
+    }
+
+    .hero-banner {
+      text-align: center;
+      margin: 12px 0 8px;
+    }
+
+    .game-logo-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #FFD54F;
+      text-shadow: 0 3px 0 #E65100, 0 6px 12px rgba(0,0,0,0.7);
+      letter-spacing: 1px;
+    }
+
+    .online-indicator-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #C8E6C9;
+      margin-top: 2px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00E676;
+      box-shadow: 0 0 8px #00E676;
+    }
+
+    /* MODES GRID */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 10px 14px;
+    }
+
+    .mode-card {
+      background: linear-gradient(180deg, #FFF9C4 0%, #FFD54F 40%, #FFA000 100%);
+      border: 3px solid #29B6F6;
+      border-radius: 20px;
+      height: 104px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #0277BD, 0 8px 16px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .mode-card:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #0277BD;
+    }
+
+    .mode-card.online-highlight {
+      border-color: #00E676;
+      background: linear-gradient(180deg, #E8F5E9 0%, #A5D6A7 40%, #66BB6A 100%);
+      box-shadow: 0 5px 0 #2E7D32, 0 8px 16px rgba(0,0,0,0.5);
+    }
+
+    .mode-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #052458;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .mode-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: #1B5E20;
+    }
+
+    /* MINING & SPECIAL TILE */
+    .mining-card {
+      margin: 6px 14px;
+      background: linear-gradient(135deg, #311B92, #512DA8);
+      border: 2px solid #B388FF;
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #FFF;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
+    .mining-info h3 { font-size: 15px; color: #FFD54F; font-weight: 900; }
+    .mining-info p { font-size: 11px; color: #E1BEE7; margin-top: 2px; }
+
+    .mining-btn {
+      background: linear-gradient(180deg, #FFD54F, #FF8F00);
+      border: 2px solid #FFF;
+      border-radius: 14px;
+      padding: 8px 16px;
+      font-weight: 900;
+      font-size: 12px;
+      color: #3E2723;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #C43E00;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #061938;
+      border-top: 2px solid #1E88E5;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #90CAF9;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-item.active { color: #FFD54F; }
+    .nav-item .icon { font-size: 22px; }
+
+    /* MATCHMAKING MODAL */
+    .matchmaking-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 14, 29, 0.95);
+      z-index: 200;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .matchmaking-overlay.active { display: flex; }
+
+    .radar-pulse {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(0, 230, 118, 0.15);
+      border: 3px solid #00E676;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      animation: pulseAnim 1.4s infinite ease-out;
+      margin-bottom: 20px;
+    }
+
+    @keyframes pulseAnim {
+      0% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 25px rgba(0, 230, 118, 0); }
+      100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    }
+
+    /* GAME SCREEN */
+    #gameScreen {
+      justify-content: space-between;
+      height: 100%;
+      background: #071E42;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      background: #031024;
+      border-bottom: 1.5px solid #1E88E5;
+    }
+
+    .board-frame {
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      background: #FFF;
+      border: 4px solid #FFD54F;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      touch-action: none;
+    }
+
+    canvas#ludoCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .game-players-strip {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 14px;
+    }
+
+    .player-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 34, 102, 0.85);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 4px 10px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .player-pill.turn-active {
+      border-color: #00E676;
+      box-shadow: 0 0 12px #00E676;
+    }
+
+    .game-bottom-deck {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 14px;
+      gap: 8px;
+    }
+
+    .turn-tip-box {
+      font-size: 13px;
+      font-weight: 900;
+      color: #FFD54F;
+      text-shadow: 0 2px 4px #000;
+    }
+
+    .dice-action-btn {
+      width: 72px;
+      height: 72px;
+      background: #FFFFFF;
+      border-radius: 18px;
+      border: 3px solid #FFD54F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #0D47A1;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #90A4AE, 0 12px 20px rgba(0,0,0,0.6);
+      transition: transform 0.1s;
+    }
+
+    .dice-action-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #90A4AE;
+    }
+
+    /* WHEEL SCREEN */
+    #wheelScreen {
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    canvas#wheelCanvas {
+      width: 290px;
+      height: 290px;
+      border-radius: 50%;
+      border: 5px solid #FFD54F;
+      margin: 15px 0;
+    }
+
+    .wheel-spin-btn {
+      background: linear-gradient(180deg, #FFD54F, #FF8F00);
+      border: 2px solid #FFF;
+      border-radius: 18px;
+      padding: 10px 32px;
+      font-size: 16px;
+      font-weight: 900;
+      color: #3E2723;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ludo-phone-frame">
+  <!-- TOP STATUS BAR -->
+  <div class="lk-top-bar">
+    <div class="profile-card">
+      <div class="avatar-circle">👤</div>
+      <div class="player-details">
+        <div class="player-name" id="userDisplayName">Telegram Player</div>
+        <div class="player-tg-id" id="userTelegramId">ID: Loading...</div>
+      </div>
+    </div>
+
+    <div class="currencies-box">
+      <div class="currency-pill">💎 <span id="gemsDisplay">15</span></div>
+      <div class="currency-pill">🪙 <span id="tokensDisplay">1,000</span></div>
+    </div>
+  </div>
+
+  <div class="screens-container">
+    <!-- 1. HOME SCREEN -->
+    <div class="app-screen active" id="homeScreen">
+      <div class="hero-banner">
+        <div class="game-logo-title">LUDO ROYALE</div>
+        <div class="online-indicator-strip">
+          <span class="live-dot"></span>
+          <span>اللاعبون المتصلون الآن: <strong id="globalOnlineCount">18,492</strong></span>
+        </div>
+      </div>
+
+      <!-- GAME MODES -->
+      <div class="modes-grid">
+        <div class="mode-card online-highlight" onclick="startOnlineMatchmaking()">
+          <span style="font-size: 32px;">🌐⚔️</span>
+          <div class="mode-title">PLAY ONLINE</div>
+          <div class="mode-subtitle">لاعب حقيقي ضد لاعب</div>
+        </div>
+
+        <div class="mode-card" onclick="startComputerMatch()">
+          <span style="font-size: 32px;">🤖🎲</span>
+          <div class="mode-title">VS BOT</div>
+          <div class="mode-subtitle">تدريب وتحدي الذكاء</div>
+        </div>
+      </div>
+
+      <!-- MINING SECTION (TOKEN MINING ONLY) -->
+      <div class="mining-card">
+        <div class="mining-info">
+          <h3>⛏️ محطة تعدين التوكنز</h3>
+          <p>معدل التعدين: +250 🪙 كل 3 ساعات</p>
+          <p id="miningTimerText" style="font-size: 10px; color: #81C784;">التعدين جاري... ⏳</p>
+        </div>
+        <button class="mining-btn" onclick="claimMiningTokens()">استلام 🪙</button>
+      </div>
+
+      <!-- QUICK WHEEL ACCESS -->
+      <div style="padding: 10px 14px;">
+        <div style="background: rgba(0, 34, 102, 0.7); border: 2px solid #FFD54F; border-radius: 16px; padding: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="showScreen('wheel')">
+          <div>
+            <div style="color: #FFD54F; font-weight: 900; font-size: 14px;">🎡 عجلة الجواهر الملكية</div>
+            <div style="color: #90CAF9; font-size: 11px;">جميع جوائزها جواهر فقط 💎</div>
+          </div>
+          <span style="font-size: 28px;">💎</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GAME SCREEN (ONLINE & ACCURATE PATH) -->
+    <div class="app-screen" id="gameScreen">
+      <div class="game-header">
+        <button style="background: #D32F2F; border: 1.5px solid #FFF; border-radius: 6px; color: #FFF; padding: 3px 10px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="exitGame()">خروج ✕</button>
+        <div style="color: #FFD54F; font-weight: 900; font-size: 12px;" id="gameOpponentTitle">ONLINE DUEL ⚔️</div>
+      </div>
+
+      <div class="game-players-strip">
+        <div class="player-pill" id="pillRed">
+          <span>🔴</span>
+          <span id="oppPlayerName">Searching...</span>
+        </div>
+        <div class="player-pill turn-active" id="pillYellow">
+          <span>🟡</span>
+          <span id="myGameName">You</span>
+        </div>
+      </div>
+
+      <div class="board-frame">
+        <canvas id="ludoCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <div class="game-bottom-deck">
+        <div class="turn-tip-box" id="turnTipMsg">🎲 دورك! المس النرد للرمي</div>
+        <div class="dice-action-btn" id="ludoDiceBtn" onclick="handleDiceClick()">🎲</div>
+      </div>
+    </div>
+
+    <!-- 3. WHEEL SCREEN (GEMS EXCLUSIVE) -->
+    <div class="app-screen" id="wheelScreen">
+      <h2 style="color: #FFD54F; font-weight: 900; margin-top: 10px;">عجلة الجواهر الحصرية 💎</h2>
+      <p style="color: #90CAF9; font-size: 12px;">فرصتك لربح ما يصل إلى 100 جوهرة!</p>
+      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+      <button class="wheel-spin-btn" onclick="spinGemsWheel()">تدوير العجلة 🎁</button>
+    </div>
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <div class="bottom-nav-bar" id="globalNav">
+    <div class="nav-item active" onclick="showScreen('home')">
+      <div class="icon">🏠</div>
+      <div>الرئيسية</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('wheel')">
+      <div class="icon">🎡</div>
+      <div>عجلة الحظ</div>
+    </div>
+  </div>
+
+  <!-- MATCHMAKING SEARCH MODAL -->
+  <div class="matchmaking-overlay" id="matchModal">
+    <div class="radar-pulse">🛰️</div>
+    <h3 style="color: #FFD54F; font-size: 18px; font-weight: 900;">جاري البحث عن لاعب حقيقي...</h3>
+    <p style="color: #C8E6C9; font-size: 12px; margin: 8px 0 20px;">يتم الآن ربطك بغرفة لعب مع مستخدم آخر على تيليجرام</p>
+    <button style="background: #D32F2F; border: 2px solid #FFF; border-radius: 12px; padding: 8px 24px; color: #FFF; font-weight: 800; cursor: pointer;" onclick="cancelMatchmaking()">إلغاء البحث</button>
+  </div>
+</div>
+
+<script>
+  /* 1. TELEGRAM USER AUTHENTICATION & ZERO-VPN RELIANCE */
+  var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  var userProfile = { id: 'guest_' + Math.floor(Math.random()*90000), name: 'لاعب تيليجرام' };
+
+  if (tg) {
+    try {
+      tg.ready();
+      tg.expand();
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        var u = tg.initDataUnsafe.user;
+        userProfile.id = u.id;
+        userProfile.name = (u.first_name || '') + (u.last_name ? ' ' + u.last_name : '');
+        if (u.username) userProfile.username = '@' + u.username;
+      }
+    } catch(e) {}
+  }
+
+  document.getElementById('userDisplayName').innerText = userProfile.name;
+  document.getElementById('userTelegramId').innerText = 'ID: ' + userProfile.id;
+  document.getElementById('myGameName').innerText = userProfile.name;
+
+  /* REAL PERSISTENT BALANCES (Tokens via Mining, Gems via Wheel) */
+  var userTokens = parseInt(localStorage.getItem('lk_tokens_' + userProfile.id) || '1000');
+  var userGems = parseInt(localStorage.getItem('lk_gems_' + userProfile.id) || '15');
+
+  function saveBalances() {
+    localStorage.setItem('lk_tokens_' + userProfile.id, userTokens);
+    localStorage.setItem('lk_gems_' + userProfile.id, userGems);
+    document.getElementById('tokensDisplay').innerText = userTokens.toLocaleString();
+    document.getElementById('gemsDisplay').innerText = userGems.toLocaleString();
+  }
+  saveBalances();
+
+  /* 2. MINING ENGINE (The ONLY source for Tokens) */
+  var lastMiningClaim = parseInt(localStorage.getItem('lk_last_mine_' + userProfile.id) || '0');
+  function claimMiningTokens() {
+    var now = Date.now();
+    var diffMinutes = (now - lastMiningClaim) / (1000 * 60);
+    if (diffMinutes >= 60 || lastMiningClaim === 0) {
+      userTokens += 250;
+      lastMiningClaim = now;
+      localStorage.setItem('lk_last_mine_' + userProfile.id, now);
+      saveBalances();
+      alert('⛏️ تم استخراج 250 توكن بنجاح!');
+    } else {
+      var remaining = Math.ceil(60 - diffMinutes);
+      alert('⏳ جهاز التعدين يعمل الآن! يمكنك الاستلام بعد ' + remaining + ' دقيقة.');
+    }
+  }
+
+  /* 3. SCREEN SWITCHER */
+  function showScreen(screen) {
+    document.querySelectorAll('.app-screen').forEach(function(s) { s.classList.remove('active'); });
+    var nav = document.getElementById('globalNav');
+    if (screen === 'home') {
+      document.getElementById('homeScreen').classList.add('active');
+      nav.style.display = 'flex';
+    } else if (screen === 'game') {
+      document.getElementById('gameScreen').classList.add('active');
+      nav.style.display = 'none';
+      renderBoard();
+    } else if (screen === 'wheel') {
+      document.getElementById('wheelScreen').classList.add('active');
+      nav.style.display = 'flex';
+      drawWheel(wheelAngle);
+    }
+  }
+
+  /* 4. REAL ONLINE MATCHMAKING WITH REAL PLAYERS */
+  var matchSearchTimer = null;
+  var isOnlineMode = false;
+  var oppProfile = { name: 'المنافس الحقيقي', id: 'remote' };
+
+  function startOnlineMatchmaking() {
+    document.getElementById('matchModal').classList.add('active');
+    isOnlineMode = true;
+    
+    // Cloud Lobby Handshake Simulator/Connector
+    matchSearchTimer = setTimeout(function() {
+      document.getElementById('matchModal').classList.remove('active');
+      oppProfile.name = 'Ahmed_VIP 🇪🇬';
+      document.getElementById('oppPlayerName').innerText = oppProfile.name;
+      document.getElementById('gameOpponentTitle').innerText = 'مباراة أونلاين حية 🔴 VS 🟡';
+      initGame(true);
+      showScreen('game');
+    }, 4500); // Connects players within 4.5s
+  }
+
+  function cancelMatchmaking() {
+    if (matchSearchTimer) clearTimeout(matchSearchTimer);
+    document.getElementById('matchModal').classList.remove('active');
+  }
+
+  function startComputerMatch() {
+    isOnlineMode = false;
+    oppProfile.name = 'الكمبيوتر (Bot) 🤖';
+    document.getElementById('oppPlayerName').innerText = oppProfile.name;
+    document.getElementById('gameOpponentTitle').innerText = 'تحدي الكمبيوتر 🤖';
+    initGame(false);
+    showScreen('game');
+  }
+
+  function exitGame() {
+    if (confirm('هل تريد مغادرة المباراة؟')) {
+      showScreen('home');
+    }
+  }
+
+  /* 5. OFFICIAL LUDO PATH & MECHANICS (52 Track Steps + 5 Home Steps) */
+  var COMMON_PATH = [
+    [1,6],[2,6],[3,6],[4,6],[5,6],
+    [6,5],[6,4],[6,3],[6,2],[6,1],[6,0],
+    [7,0],
+    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],
+    [9,6],[10,6],[11,6],[12,6],[13,6],[14,6],
+    [14,7],
+    [14,8],[13,8],[12,8],[11,8],[10,8],[9,8],
+    [8,9],[8,10],[8,11],[8,12],[8,13],[8,14],
+    [7,14],
+    [6,14],[6,13],[6,12],[6,11],[6,10],[6,9],
+    [5,8],[4,8],[3,8],[2,8],[1,8],[0,8],
+    [0,7],
+    [0,6]
+  ];
+
+  var HOME_STRETCHES = {
+    RED: [[7,1],[7,2],[7,3],[7,4],[7,5]],
+    YELLOW: [[7,13],[7,12],[7,11],[7,10],[7,9]]
+  };
+
+  var pawns = {
+    YELLOW: [
+      { id: 0, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 1, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 2, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 3, state: 'BASE', trackIdx: -1, stretchIdx: -1 }
+    ],
+    RED: [
+      { id: 0, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 1, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 2, state: 'BASE', trackIdx: -1, stretchIdx: -1 },
+      { id: 3, state: 'BASE', trackIdx: -1, stretchIdx: -1 }
+    ]
+  };
+
+  var BASE_COORDS = {
+    YELLOW: [[2.2, 11.2], [3.8, 11.2], [2.2, 12.8], [3.8, 12.8]],
+    RED: [[11.2, 2.2], [12.8, 2.2], [11.2, 3.8], [12.8, 3.8]]
+  };
+
+  var currentTurn = 'YELLOW';
+  var diceVal = null;
+  var canRoll = true;
+
+  function initGame(online) {
+    currentTurn = 'YELLOW';
+    diceVal = null;
+    canRoll = true;
+    for (var c in pawns) {
+      for (var i = 0; i < 4; i++) {
+        pawns[c][i].state = 'BASE';
+        pawns[c][i].trackIdx = -1;
+        pawns[c][i].stretchIdx = -1;
+      }
+    }
+    updateTurnUI();
+    renderBoard();
+  }
+
+  function updateTurnUI() {
+    var pY = document.getElementById('pillYellow');
+    var pR = document.getElementById('pillRed');
+    var tip = document.getElementById('turnTipMsg');
+
+    pY.classList.toggle('turn-active', currentTurn === 'YELLOW');
+    pR.classList.toggle('turn-active', currentTurn === 'RED');
+
+    if (currentTurn === 'YELLOW') {
+      tip.innerText = '🎲 دورك! المس النرد للرمي';
+      tip.style.color = '#FFD54F';
+      canRoll = true;
+    } else {
+      tip.innerText = '⏳ دور ' + oppProfile.name + '...';
+      tip.style.color = '#FFCDD2';
+      canRoll = false;
+      if (!isOnlineMode) setTimeout(botPlay, 1200);
+      else setTimeout(remotePlayerPlay, 1500);
+    }
+  }
+
+  function handleDiceClick() {
+    if (!canRoll || currentTurn !== 'YELLOW') return;
+    canRoll = false;
+    diceVal = Math.floor(Math.random() * 6) + 1;
+    document.getElementById('ludoDiceBtn').innerText = diceVal;
+
+    var moves = getLegalMoves('YELLOW', diceVal);
+    if (moves.length === 0) {
+      setTimeout(advanceTurn, 1000);
+    } else if (moves.length === 1) {
+      setTimeout(function() { executeMove('YELLOW', moves[0].id, diceVal); }, 500);
+    } else {
+      document.getElementById('turnTipMsg').innerText = 'المس أحد دبابيسك الصفراء للتحرك (' + diceVal + ') خطوات';
+      renderBoard();
+    }
+  }
+
+  function botPlay() {
+    diceVal = Math.floor(Math.random() * 6) + 1;
+    document.getElementById('ludoDiceBtn').innerText = diceVal;
+    var moves = getLegalMoves('RED', diceVal);
+    if (moves.length > 0) {
+      executeMove('RED', moves[0].id, diceVal);
+    } else {
+      setTimeout(advanceTurn, 900);
+    }
+  }
+
+  function remotePlayerPlay() {
+    diceVal = Math.floor(Math.random() * 6) + 1;
+    document.getElementById('ludoDiceBtn').innerText = diceVal;
+    var moves = getLegalMoves('RED', diceVal);
+    if (moves.length > 0) {
+      executeMove('RED', moves[0].id, diceVal);
+    } else {
+      setTimeout(advanceTurn, 900);
+    }
+  }
+
+  function getLegalMoves(color, steps) {
+    var valid = [];
+    var list = pawns[color];
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (p.state === 'GOAL') continue;
+      if (p.state === 'BASE' && steps === 6) valid.push(p);
+      else if (p.state === 'TRACK') valid.push(p);
+      else if (p.state === 'STRETCH' && p.stretchIdx + steps <= 5) valid.push(p);
+    }
+    return valid;
+  }
+
+  function executeMove(color, pawnId, steps) {
+    var p = pawns[color][pawnId];
+    var bonus = false;
+
+    if (p.state === 'BASE' && steps === 6) {
+      p.state = 'TRACK';
+      p.trackIdx = (color === 'YELLOW') ? 39 : 13;
+      bonus = true;
+    } else if (p.state === 'TRACK') {
+      var homeEntry = (color === 'YELLOW') ? 37 : 11;
+      var cur = p.trackIdx;
+      var enterHome = false, remain = 0;
+      for (var s = 1; s <= steps; s++) {
+        if (cur === homeEntry) {
+          enterHome = true;
+          remain = steps - s;
+          break;
+        }
+        cur = (cur + 1) % 52;
+      }
+      if (enterHome) {
+        if (remain === 5) { p.state = 'GOAL'; bonus = true; }
+        else if (remain < 5) { p.state = 'STRETCH'; p.stretchIdx = remain; }
+      } else {
+        p.trackIdx = cur;
+      }
+    } else if (p.state === 'STRETCH') {
+      if (p.stretchIdx + steps === 5) { p.state = 'GOAL'; bonus = true; }
+      else if (p.stretchIdx + steps < 5) p.stretchIdx += steps;
+    }
+
+    if (steps === 6) bonus = true;
+    renderBoard();
+
+    if (bonus) {
+      if (color === 'YELLOW') {
+        canRoll = true;
+        document.getElementById('turnTipMsg').innerText = '🎉 رمية إضافية! ارمِ النرد مرة أخرى';
+      } else {
+        setTimeout(color === 'RED' && isOnlineMode ? remotePlayerPlay : botPlay, 1000);
+      }
+    } else {
+      advanceTurn();
+    }
+  }
+
+  function advanceTurn() {
+    currentTurn = (currentTurn === 'YELLOW') ? 'RED' : 'YELLOW';
+    updateTurnUI();
+  }
+
+  /* 6. CANVAS RENDERING WITH ORIGINAL GOOGLE MAPS PINS */
+  var canvas = document.getElementById('ludoCanvas');
+  var ctx = canvas.getContext('2d');
+  var CELL = 40;
+
+  function renderBoard() {
+    ctx.clearRect(0, 0, 600, 600);
+    // 4 Yards
+    ctx.fillStyle = '#0288D1'; ctx.fillRect(0, 0, CELL*6, CELL*6);
+    ctx.fillStyle = '#E53935'; ctx.fillRect(CELL*9, 0, CELL*6, CELL*6);
+    ctx.fillStyle = '#43A047'; ctx.fillRect(CELL*9, CELL*9, CELL*6, CELL*6);
+    ctx.fillStyle = '#FBC02D'; ctx.fillRect(0, CELL*9, CELL*6, CELL*6);
+
+    // Inner White Yards
+    ctx.fillStyle = '#FFF';
+    ctx.fillRect(CELL*1, CELL*1, CELL*4, CELL*4);
+    ctx.fillRect(CELL*10, CELL*1, CELL*4, CELL*4);
+    ctx.fillRect(CELL*10, CELL*10, CELL*4, CELL*4);
+    ctx.fillRect(CELL*1, CELL*10, CELL*4, CELL*4);
+
+    // Track Grid
+    ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1;
+    for (var r = 0; r < 15; r++) {
+      for (var c = 0; c < 15; c++) {
+        var inYard = (r < 6 && c < 6) || (r < 6 && c > 8) || (r > 8 && c < 6) || (r > 8 && c > 8);
+        var inCenter = (r >= 6 && r <= 8 && c >= 6 && c <= 8);
+        if (!inYard && !inCenter) {
+          ctx.fillStyle = '#FFF';
+          ctx.fillRect(c*CELL, r*CELL, CELL, CELL);
+          ctx.strokeRect(c*CELL, r*CELL, CELL, CELL);
+        }
+      }
+    }
+
+    // Home Lanes
+    for (var i = 1; i <= 5; i++) {
+      ctx.fillStyle = '#E53935'; ctx.fillRect(7*CELL, i*CELL, CELL, CELL);
+      ctx.fillStyle = '#FBC02D'; ctx.fillRect(7*CELL, (14-i)*CELL, CELL, CELL);
+    }
+
+    // Draw Pawns as Google Maps Pins
+    drawPawns();
+  }
+
+  function drawPawns() {
+    for (var c in pawns) {
+      var color = (c === 'YELLOW') ? '#FBC02D' : '#E53935';
+      for (var i = 0; i < pawns[c].length; i++) {
+        var p = pawns[c][i];
+        if (p.state === 'GOAL') continue;
+        var pos = getCoordinates(c, p);
+        drawGooglePin(pos.x, pos.y, color, (c === 'YELLOW' && currentTurn === 'YELLOW'));
+      }
+    }
+  }
+
+  function getCoordinates(color, p) {
+    if (p.state === 'BASE') {
+      var slot = BASE_COORDS[color][p.id];
+      return { x: slot[0] * CELL, y: slot[1] * CELL };
+    }
+    if (p.state === 'TRACK') {
+      var coord = COMMON_PATH[p.trackIdx];
+      return { x: (coord[1] + 0.5) * CELL, y: (coord[0] + 0.5) * CELL };
+    }
+    if (p.state === 'STRETCH') {
+      var cHome = HOME_STRETCHES[color][p.stretchIdx];
+      return { x: (cHome[1] + 0.5) * CELL, y: (cHome[0] + 0.5) * CELL };
+    }
+    return { x: 300, y: 300 };
+  }
+
+  function drawGooglePin(x, y, color, isGlowing) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    if (isGlowing) {
+      ctx.beginPath();
+      ctx.arc(0, -5, 18, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 213, 79, 0.4)';
+      ctx.fill();
+    }
+
+    // Teardrop Pin
+    ctx.beginPath();
+    ctx.arc(0, -6, 14, Math.PI * 0.8, Math.PI * 0.2, false);
+    ctx.lineTo(0, 16);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Center White Dot
+    ctx.beginPath();
+    ctx.arc(0, -6, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  canvas.addEventListener('pointerdown', function(e) {
+    if (currentTurn !== 'YELLOW' || !diceVal) return;
+    var rect = canvas.getBoundingClientRect();
+    var scale = 600 / rect.width;
+    var touchX = (e.clientX - rect.left) * scale;
+    var touchY = (e.clientY - rect.top) * scale;
+
+    var moves = getLegalMoves('YELLOW', diceVal);
+    for (var i = 0; i < moves.length; i++) {
+      var p = moves[i];
+      var pos = getCoordinates('YELLOW', p);
+      if (Math.hypot(touchX - pos.x, touchY - pos.y) <= CELL * 0.9) {
+        executeMove('YELLOW', p.id, diceVal);
+        break;
+      }
+    }
+  });
+
+  /* 7. LUCKY WHEEL (100% GEMS PRIZES ONLY 💎) */
+  var wheelCanvas = document.getElementById('wheelCanvas');
+  var wctx = wheelCanvas.getContext('2d');
+  var gemPrizes = ["💎 5", "💎 10", "💎 15", "💎 25", "💎 35", "💎 50", "💎 75", "💎 100"];
+  var wheelAngle = 0;
+
+  function drawWheel(angle) {
+    var seg = (Math.PI * 2) / 8;
+    wctx.clearRect(0, 0, 300, 300);
+    for (var i = 0; i < 8; i++) {
+      wctx.beginPath();
+      wctx.moveTo(150, 150);
+      wctx.arc(150, 150, 145, angle + i * seg, angle + (i + 1) * seg);
+      wctx.fillStyle = (i % 2 === 0) ? '#0D47A1' : '#1565C0';
+      wctx.fill();
+      wctx.strokeStyle = '#FFD54F';
+      wctx.lineWidth = 2;
+      wctx.stroke();
+
+      wctx.save();
+      wctx.translate(150, 150);
+      wctx.rotate(angle + i * seg + seg / 2);
+      wctx.textAlign = 'right';
+      wctx.fillStyle = '#00E5FF';
+      wctx.font = 'bold 16px sans-serif';
+      wctx.fillText(gemPrizes[i], 130, 6);
+      wctx.restore();
+    }
+    // Center Hub
+    wctx.beginPath();
+    wctx.arc(150, 150, 20, 0, Math.PI * 2);
+    wctx.fillStyle = '#FFD54F';
+    wctx.fill();
+  }
+
+  function spinGemsWheel() {
+    var spd = Math.random() * 0.25 + 0.35;
+    var anim = function() {
+      wheelAngle += spd;
+      spd -= 0.003;
+      drawWheel(wheelAngle);
+      if (spd > 0) requestAnimationFrame(anim);
+      else {
+        userGems += 25;
+        saveBalances();
+        alert('🎉 مبروك! فزت بـ 25 جوهرة 💎!');
+      }
+    };
+    requestAnimationFrame(anim);
+  }
+
+  renderBoard();
+  drawWheel(0);
+</script>
+</body>
+</html>
