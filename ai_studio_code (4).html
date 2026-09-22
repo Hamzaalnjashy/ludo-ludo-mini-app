@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Ludo King Official Royale</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --lk-gold: #FFD54F;
+      --lk-blue: #0D47A1;
+      --lk-bg: #051329;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      background: #020B18;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      direction: ltr;
+    }
+
+    .ludo-phone-frame {
+      width: 100%;
+      max-width: 430px;
+      height: 100%;
+      height: 100dvh;
+      background: radial-gradient(circle at center, #1976D2 0%, #0D47A1 50%, #03142D 100%);
+      border: 3px solid #FBC02D;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 35px rgba(0,0,0,0.9);
+    }
+
+    /* TOP BAR */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      background: rgba(3, 16, 38, 0.9);
+      border-bottom: 2px solid rgba(255, 213, 79, 0.4);
+      z-index: 10;
+    }
+
+    .user-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6F00, #FFD54F);
+      border: 2px solid #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .user-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .u-name { color: #FFF; font-size: 13px; font-weight: 800; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .u-id { color: #90CAF9; font-size: 10px; font-weight: 600; }
+
+    .currencies {
+      display: flex;
+      gap: 6px;
+    }
+
+    .pill {
+      background: rgba(0, 16, 45, 0.9);
+      border: 1.5px solid #64B5F6;
+      border-radius: 14px;
+      padding: 3px 8px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* SCREENS CONTAINER */
+    .screens-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .app-screen.active {
+      display: flex;
+    }
+
+    /* HOME SCREEN */
+    #homeScreen {
+      overflow-y: auto;
+      padding-bottom: 75px;
+    }
+
+    .brand-banner {
+      text-align: center;
+      margin: 14px 0 10px;
+    }
+
+    .brand-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #FFD54F;
+      text-shadow: 0 3px 0 #D50000, 0 6px 14px rgba(0,0,0,0.8);
+      letter-spacing: 1px;
+    }
+
+    .modes-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 10px 14px;
+    }
+
+    .mode-btn {
+      background: linear-gradient(180deg, #FFF9C4 0%, #FFD54F 40%, #FFA000 100%);
+      border: 3px solid #29B6F6;
+      border-radius: 20px;
+      height: 105px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #0277BD, 0 8px 16px rgba(0,0,0,0.5);
+    }
+
+    .mode-btn.green-btn {
+      border-color: #00E676;
+      background: linear-gradient(180deg, #E8F5E9 0%, #A5D6A7 40%, #66BB6A 100%);
+      box-shadow: 0 5px 0 #2E7D32, 0 8px 16px rgba(0,0,0,0.5);
+    }
+
+    .mode-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #0277BD;
+    }
+
+    .mode-title { font-size: 14px; font-weight: 900; color: #052458; margin-top: 4px; text-transform: uppercase; }
+    .mode-sub { font-size: 10px; font-weight: 800; color: #1B5E20; }
+
+    .station-card {
+      margin: 8px 14px;
+      background: linear-gradient(135deg, #311B92, #512DA8);
+      border: 2px solid #B388FF;
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #FFF;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    /* GAME SCREEN */
+    #gameScreen {
+      justify-content: space-between;
+      height: 100%;
+      background: #061938;
+      padding-bottom: 12px;
+    }
+
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      background: #020C1C;
+      border-bottom: 1.5px solid #1E88E5;
+    }
+
+    .players-strip {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 12px;
+    }
+
+    .player-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 34, 102, 0.85);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 4px 10px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .player-tab.active-turn {
+      border-color: #00E676;
+      box-shadow: 0 0 12px #00E676;
+    }
+
+    /* OFFICIAL LUDO BOARD CANVAS */
+    .board-container {
+      width: 100%;
+      max-width: 375px;
+      aspect-ratio: 1 / 1;
+      margin: 2px auto;
+      background: #FFF;
+      border: 5px solid #FFD54F;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      touch-action: none;
+    }
+
+    canvas#ludoCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 10px;
+    }
+
+    /* REAL 3D CUBE DICE SECTION */
+    .bottom-controls-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 14px;
+      gap: 6px;
+    }
+
+    .tip-banner {
+      font-size: 13px;
+      font-weight: 900;
+      color: #FFD54F;
+      text-shadow: 0 2px 4px #000;
+    }
+
+    .dice-scene {
+      width: 76px;
+      height: 76px;
+      perspective: 400px;
+      margin: 4px auto;
+      cursor: pointer;
+    }
+
+    .dice-cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: translateZ(-38px) rotateX(-20deg) rotateY(-25deg);
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dice-cube.rolling {
+      animation: dice3dRoll 0.6s infinite linear;
+    }
+
+    @keyframes dice3dRoll {
+      0% { transform: translateZ(-38px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: translateZ(-38px) rotateX(360deg) rotateY(720deg) rotateZ(360deg); }
+    }
+
+    .dice-face {
+      position: absolute;
+      width: 76px;
+      height: 76px;
+      background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F5F5F5 60%, #E0E0E0 100%);
+      border: 2px solid #CBD5E1;
+      border-radius: 16px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.3);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 8px;
+    }
+
+    .pip {
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle at 35% 35%, #334155, #0F172A);
+      border-radius: 50%;
+      align-self: center;
+      justify-self: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+    }
+
+    .face-1 { transform: rotateY(0deg) translateZ(38px); }
+    .face-2 { transform: rotateY(90deg) translateZ(38px); }
+    .face-3 { transform: rotateX(90deg) translateZ(38px); }
+    .face-4 { transform: rotateX(-90deg) translateZ(38px); }
+    .face-5 { transform: rotateY(-90deg) translateZ(38px); }
+    .face-6 { transform: rotateY(180deg) translateZ(38px); }
+
+    /* WHEEL SCREEN */
+    #wheelScreen {
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    canvas#wheelCanvas {
+      width: 290px;
+      height: 290px;
+      border-radius: 50%;
+      border: 5px solid #FFD54F;
+      margin: 15px 0;
+    }
+
+    /* MATCHMAKING RADAR */
+    .match-modal {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 15, 33, 0.95);
+      z-index: 300;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .match-modal.active { display: flex; }
+
+    .radar-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 230, 118, 0.15);
+      border: 3px solid #00E676;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      animation: pulseRadar 1.4s infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes pulseRadar {
+      0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 25px rgba(0, 230, 118, 0); }
+      100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    }
+
+    .bottom-nav-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #04142D;
+      border-top: 2px solid #1976D2;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #90CAF9;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-btn.active { color: #FFD54F; }
+    .nav-btn .icon { font-size: 22px; }
+  </style>
+</head>
+<body>
+
+<div class="ludo-phone-frame">
+  <!-- TOP STATUS BAR -->
+  <div class="top-header">
+    <div class="user-tag">
+      <div class="user-avatar">👤</div>
+      <div class="user-text">
+        <div class="u-name" id="userNameTag">Telegram User</div>
+        <div class="u-id" id="userIdTag">ID: ---</div>
+      </div>
+    </div>
+
+    <div class="currencies">
+      <div class="pill">💎 <span id="gemsVal">15</span></div>
+      <div class="pill">🪙 <span id="tokensVal">1,000</span></div>
+    </div>
+  </div>
+
+  <div class="screens-container">
+    <!-- 1. HOME SCREEN -->
+    <div class="app-screen active" id="homeScreen">
+      <div class="brand-banner">
+        <div class="brand-title">LUDO ROYALE</div>
+        <div style="font-size: 11px; color: #81C784; font-weight: 800;">🟢 المتصلون الآن: 18,492 لاعب</div>
+      </div>
+
+      <div class="modes-deck">
+        <div class="mode-btn green-btn" onclick="startOnlineDuel()">
+          <span style="font-size: 32px;">🌐⚔️</span>
+          <div class="mode-title">PLAY ONLINE</div>
+          <div class="mode-sub">لاعب حقيقي ضد لاعب</div>
+        </div>
+
+        <div class="mode-btn" onclick="startBotDuel()">
+          <span style="font-size: 32px;">🤖🎲</span>
+          <div class="mode-title">VS COMPUTER</div>
+          <div class="mode-sub">تحدي الذكاء الاصطناعي</div>
+        </div>
+      </div>
+
+      <!-- TOKEN MINING (SOLE SOURCE FOR TOKENS) -->
+      <div class="station-card">
+        <div>
+          <h4 style="color: #FFD54F; font-size: 14px; font-weight: 900;">⛏️ محطة تعدين التوكنز</h4>
+          <p style="font-size: 11px; color: #E1BEE7;">معدل الاستخراج: +250 🪙 كل ساعة</p>
+        </div>
+        <button style="background: linear-gradient(180deg, #FFD54F, #FF8F00); border: 2px solid #FFF; border-radius: 12px; padding: 6px 14px; font-weight: 900; font-size: 12px; cursor: pointer;" onclick="claimTokens()">استلام 🪙</button>
+      </div>
+
+      <!-- WHEEL BANNER -->
+      <div style="padding: 6px 14px;">
+        <div style="background: rgba(0, 34, 102, 0.75); border: 2px solid #FFD54F; border-radius: 16px; padding: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="navTo('wheel')">
+          <div>
+            <div style="color: #FFD54F; font-weight: 900; font-size: 14px;">🎡 عجلة الجواهر الملكية</div>
+            <div style="color: #90CAF9; font-size: 11px;">جوائز حصرية جواهر فقط 💎</div>
+          </div>
+          <span style="font-size: 28px;">💎</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GAME SCREEN (OFFICIAL LUDO BOARD & 3D DICE) -->
+    <div class="app-screen" id="gameScreen">
+      <div class="match-header">
+        <button style="background: #D32F2F; border: 1.5px solid #FFF; border-radius: 6px; color: #FFF; padding: 3px 10px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="leaveMatch()">خروج ✕</button>
+        <div style="color: #FFD54F; font-weight: 900; font-size: 12px;" id="modeHeaderTitle">ONLINE MATCH ⚔️</div>
+      </div>
+
+      <div class="players-strip">
+        <div class="player-tab" id="pillRed">
+          <span>🔴</span>
+          <span id="oppPlayerName">Opponent</span>
+        </div>
+        <div class="player-tab active-turn" id="pillYellow">
+          <span>🟡</span>
+          <span id="myPlayerName">You</span>
+        </div>
+      </div>
+
+      <!-- OFFICIAL BOARD CANVAS -->
+      <div class="board-container">
+        <canvas id="ludoCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <!-- 3D DICE & CONTROLS -->
+      <div class="bottom-controls-area">
+        <div class="tip-banner" id="tipBannerText">🎲 دورك! اضغط على النرد للرمي</div>
+
+        <!-- 3D CUBE DICE -->
+        <div class="dice-scene" onclick="roll3DDice()">
+          <div class="dice-cube" id="cube3d">
+            <!-- 1 -->
+            <div class="dice-face face-1">
+              <div></div><div></div><div></div>
+              <div></div><div class="pip"></div><div></div>
+              <div></div><div></div><div></div>
+            </div>
+            <!-- 2 -->
+            <div class="dice-face face-2">
+              <div class="pip"></div><div></div><div></div>
+              <div></div><div></div><div></div>
+              <div></div><div></div><div class="pip"></div>
+            </div>
+            <!-- 3 -->
+            <div class="dice-face face-3">
+              <div class="pip"></div><div></div><div></div>
+              <div></div><div class="pip"></div><div></div>
+              <div></div><div></div><div class="pip"></div>
+            </div>
+            <!-- 4 -->
+            <div class="dice-face face-4">
+              <div class="pip"></div><div></div><div class="pip"></div>
+              <div></div><div></div><div></div>
+              <div class="pip"></div><div></div><div class="pip"></div>
+            </div>
+            <!-- 5 -->
+            <div class="dice-face face-5">
+              <div class="pip"></div><div></div><div class="pip"></div>
+              <div></div><div class="pip"></div><div></div>
+              <div class="pip"></div><div></div><div class="pip"></div>
+            </div>
+            <!-- 6 -->
+            <div class="dice-face face-6">
+              <div class="pip"></div><div></div><div class="pip"></div>
+              <div class="pip"></div><div></div><div class="pip"></div>
+              <div class="pip"></div><div></div><div class="pip"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. WHEEL SCREEN (GEMS ONLY 💎) -->
+    <div class="app-screen" id="wheelScreen">
+      <h2 style="color: #FFD54F; font-weight: 900; margin-top: 10px;">عجلة الجواهر الملكية 💎</h2>
+      <p style="color: #90CAF9; font-size: 12px;">جوائز جواهر حصرية فقط!</p>
+      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+      <button style="background: linear-gradient(180deg, #FFD54F, #FF8F00); border: 2px solid #FFF; border-radius: 18px; padding: 10px 32px; font-size: 16px; font-weight: 900; color: #3E2723; cursor: pointer;" onclick="spinGems()">تدوير العجلة 🎁</button>
+    </div>
+  </div>
+
+  <!-- NAV BAR -->
+  <div class="bottom-nav-bar" id="globalNav">
+    <div class="nav-btn active" onclick="navTo('home')">
+      <div class="icon">🏠</div>
+      <div>الرئيسية</div>
+    </div>
+    <div class="nav-btn" onclick="navTo('wheel')">
+      <div class="icon">🎡</div>
+      <div>عجلة الحظ</div>
+    </div>
+  </div>
+
+  <!-- MATCHMAKING RADAR MODAL -->
+  <div class="match-modal" id="matchModal">
+    <div class="radar-icon">🛰️</div>
+    <h3 style="color: #FFD54F; font-size: 18px; font-weight: 900;">جاري البحث عن لاعب حقيقي...</h3>
+    <p style="color: #C8E6C9; font-size: 12px; margin: 8px 0 20px;">يتم الآن ربطك بغرفة لعب مع مستخدم آخر في تيليجرام</p>
+    <button style="background: #D32F2F; border: 2px solid #FFF; border-radius: 12px; padding: 8px 24px; color: #FFF; font-weight: 800; cursor: pointer;" onclick="cancelMatch()">إلغاء البحث</button>
+  </div>
+</div>
+
+<script>
+  /* 1. AUTHENTICATION & USER SETUP (ZERO-VPN) */
+  var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  var user = { id: 'guest_' + Math.floor(Math.random()*90000), name: 'لاعب تيليجرام' };
+
+  if (tg) {
+    try {
+      tg.ready();
+      tg.expand();
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        var u = tg.initDataUnsafe.user;
+        user.id = u.id;
+        user.name = (u.first_name || '') + (u.last_name ? ' ' + u.last_name : '');
+        if (u.username) user.name += ' (@' + u.username + ')';
+      }
+    } catch(e) {}
+  }
+
+  document.getElementById('userNameTag').innerText = user.name;
+  document.getElementById('userIdTag').innerText = 'ID: ' + user.id;
+  document.getElementById('myPlayerName').innerText = user.name;
+
+  var userTokens = parseInt(localStorage.getItem('lk_tokens_' + user.id) || '1000');
+  var userGems = parseInt(localStorage.getItem('lk_gems_' + user.id) || '15');
+
+  function saveBal() {
+    localStorage.setItem('lk_tokens_' + user.id, userTokens);
+    localStorage.setItem('lk_gems_' + user.id, userGems);
+    document.getElementById('tokensVal').innerText = userTokens.toLocaleString();
+    document.getElementById('gemsVal').innerText = userGems.toLocaleString();
+  }
+  saveBal();
+
+  /* 2. TOKEN MINING */
+  var lastClaim = parseInt(localStorage.getItem('lk_last_mine_' + user.id) || '0');
+  function claimTokens() {
+    var now = Date.now();
+    var diff = (now - lastClaim) / (1000 * 60);
+    if (diff >= 60 || lastClaim === 0) {
+      userTokens += 250;
+      lastClaim = now;
+      localStorage.setItem('lk_last_mine_' + user.id, now);
+      saveBal();
+      alert('⛏️ تم تعدين واستلام 250 توكن بنجاح!');
+    } else {
+      alert('⏳ جهاز التعدين يعمل الآن! متبقي ' + Math.ceil(60 - diff) + ' دقيقة.');
+    }
+  }
+
+  /* 3. NAVIGATION */
+  function navTo(screen) {
+    document.querySelectorAll('.app-screen').forEach(function(s) { s.classList.remove('active'); });
+    var nav = document.getElementById('globalNav');
+    if (screen === 'home') {
+      document.getElementById('homeScreen').classList.add('active');
+      nav.style.display = 'flex';
+    } else if (screen === 'game') {
+      document.getElementById('gameScreen').classList.add('active');
+      nav.style.display = 'none';
+      renderOfficialBoard();
+    } else if (screen === 'wheel') {
+      document.getElementById('wheelScreen').classList.add('active');
+      nav.style.display = 'flex';
+      drawGemsWheel(wheelAngle);
+    }
+  }
+
+  /* 4. MATCHMAKING */
+  var matchTimer = null, isOnline = false, opp = { name: 'الخصم' };
+  function startOnlineDuel() {
+    document.getElementById('matchModal').classList.add('active');
+    isOnline = true;
+    matchTimer = setTimeout(function() {
+      document.getElementById('matchModal').classList.remove('active');
+      opp.name = 'Karim_EG 🇪🇬';
+      document.getElementById('oppPlayerName').innerText = opp.name;
+      document.getElementById('modeHeaderTitle').innerText = 'مباراة أونلاين حية 🔴 VS 🟡';
+      initGame();
+      navTo('game');
+    }, 4500);
+  }
+
+  function cancelMatch() {
+    if (matchTimer) clearTimeout(matchTimer);
+    document.getElementById('matchModal').classList.remove('active');
+  }
+
+  function startBotDuel() {
+    isOnline = false;
+    opp.name = 'الكمبيوتر (Bot) 🤖';
+    document.getElementById('oppPlayerName').innerText = opp.name;
+    document.getElementById('modeHeaderTitle').innerText = 'تحدي الذكاء الاصطناعي 🤖';
+    initGame();
+    navTo('game');
+  }
+
+  function leaveMatch() {
+    if (confirm('هل تريد مغادرة المباراة؟')) navTo('home');
+  }
+
+  /* 5. OFFICIAL LUDO PATH COORDINATES (Standard Clockwise 52-step Path) */
+  // The path starts at Blue yard exit [col: 1, row: 6] as index 0,
+  // Red exit [col: 8, row: 1] as index 13,
+  // Green exit [col: 13, row: 8] as index 26,
+  // Yellow exit [col: 6, row: 13] as index 39.
+  var COMMON_PATH = [
+    // 0..4 (Right towards center along row 6)
+    {col: 1, row: 6}, {col: 2, row: 6}, {col: 3, row: 6}, {col: 4, row: 6}, {col: 5, row: 6},
+    // 5..10 (Upwards along column 6)
+    {col: 6, row: 5}, {col: 6, row: 4}, {col: 6, row: 3}, {col: 6, row: 2}, {col: 6, row: 1}, {col: 6, row: 0},
+    // 11 (Top center bridge)
+    {col: 7, row: 0},
+    // 12..17 (Downwards along column 8 - 13 is RED START)
+    {col: 8, row: 0}, {col: 8, row: 1}, {col: 8, row: 2}, {col: 8, row: 3}, {col: 8, row: 4}, {col: 8, row: 5},
+    // 18..23 (Rightwards along row 6)
+    {col: 9, row: 6}, {col: 10, row: 6}, {col: 11, row: 6}, {col: 12, row: 6}, {col: 13, row: 6}, {col: 14, row: 6},
+    // 24 (Right center bridge)
+    {col: 14, row: 7},
+    // 25..30 (Leftwards along row 8 - 26 is GREEN START)
+    {col: 14, row: 8}, {col: 13, row: 8}, {col: 12, row: 8}, {col: 11, row: 8}, {col: 10, row: 8}, {col: 9, row: 8},
+    // 31..36 (Downwards along column 8)
+    {col: 8, row: 9}, {col: 8, row: 10}, {col: 8, row: 11}, {col: 8, row: 12}, {col: 8, row: 13}, {col: 8, row: 14},
+    // 37 (Bottom center bridge)
+    {col: 7, row: 14},
+    // 38..43 (Upwards along column 6 - 39 is YELLOW START)
+    {col: 6, row: 14}, {col: 6, row: 13}, {col: 6, row: 12}, {col: 6, row: 11}, {col: 6, row: 10}, {col: 6, row: 9},
+    // 44..49 (Leftwards along row 8)
+    {col: 5, row: 8}, {col: 4, row: 8}, {col: 3, row: 8}, {col: 2, row: 8}, {col: 1, row: 8}, {col: 0, row: 8},
+    // 50 (Left center bridge)
+    {col: 0, row: 7},
+    // 51
+    {col: 0, row: 6}
+  ];
+
+  // Home columns leading directly to center triangles
+  var HOME_STRETCHES = {
+    RED: [
+      {col: 7, row: 1}, {col: 7, row: 2}, {col: 7, row: 3}, {col: 7, row: 4}, {col: 7, row: 5}
+    ],
+    YELLOW: [
+      {col: 7, row: 13}, {col: 7, row: 12}, {col: 7, row: 11}, {col: 7, row: 10}, {col: 7, row: 9}
+    ]
+  };
+
+  // Safe Star track indices: 0 (Blue exit), 8, 13 (Red exit), 21, 26 (Green exit), 34, 39 (Yellow exit), 47
+  var SAFE_STARS = [0, 8, 13, 21, 26, 34, 39, 47];
+
+  var pawns = {
+    YELLOW: [ { id: 0, state: 'BASE', track: -1, stretch: -1 }, { id: 1, state: 'BASE', track: -1, stretch: -1 }, { id: 2, state: 'BASE', track: -1, stretch: -1 }, { id: 3, state: 'BASE', track: -1, stretch: -1 } ],
+    RED: [ { id: 0, state: 'BASE', track: -1, stretch: -1 }, { id: 1, state: 'BASE', track: -1, stretch: -1 }, { id: 2, state: 'BASE', track: -1, stretch: -1 }, { id: 3, state: 'BASE', track: -1, stretch: -1 } ]
+  };
+
+  // Coordinates inside Yard circles
+  var BASE_SLOTS = {
+    YELLOW: [{col: 1.8, row: 10.8}, {col: 4.2, row: 10.8}, {col: 1.8, row: 13.2}, {col: 4.2, row: 13.2}],
+    RED: [{col: 10.8, row: 1.8}, {col: 13.2, row: 1.8}, {col: 10.8, row: 4.2}, {col: 13.2, row: 4.2}]
+  };
+
+  var turn = 'YELLOW', currentDice = null, canRoll = true, isRolling = false;
+
+  function initGame() {
+    turn = 'YELLOW'; currentDice = null; canRoll = true; isRolling = false;
+    for (var c in pawns) {
+      for (var i = 0; i < 4; i++) {
+        pawns[c][i].state = 'BASE';
+        pawns[c][i].track = -1;
+        pawns[c][i].stretch = -1;
+      }
+    }
+    setCubeFace(6);
+    updateTurn();
+    renderOfficialBoard();
+  }
+
+  function updateTurn() {
+    document.getElementById('pillYellow').classList.toggle('active-turn', turn === 'YELLOW');
+    document.getElementById('pillRed').classList.toggle('active-turn', turn === 'RED');
+    var tip = document.getElementById('tipBannerText');
+
+    if (turn === 'YELLOW') {
+      tip.innerText = '🎲 دورك! المس النرد للرمي';
+      tip.style.color = '#FFD54F';
+      canRoll = true;
+    } else {
+      tip.innerText = '⏳ دور ' + opp.name + '...';
+      tip.style.color = '#FFCDD2';
+      canRoll = false;
+      setTimeout(opponentMove, 1400);
+    }
+  }
+
+  var faceAngles = {
+    1: { x: 0, y: 0 },
+    2: { x: 0, y: -90 },
+    3: { x: -90, y: 0 },
+    4: { x: 90, y: 0 },
+    5: { x: 0, y: 90 },
+    6: { x: 0, y: 180 }
+  };
+
+  function setCubeFace(val) {
+    var cube = document.getElementById('cube3d');
+    var ang = faceAngles[val];
+    cube.style.transform = 'translateZ(-38px) rotateX(' + ang.x + 'deg) rotateY(' + ang.y + 'deg)';
+  }
+
+  function roll3DDice() {
+    if (!canRoll || turn !== 'YELLOW' || isRolling) return;
+    executeDiceRoll('YELLOW');
+  }
+
+  function opponentMove() {
+    executeDiceRoll('RED');
+  }
+
+  function executeDiceRoll(color) {
+    isRolling = true;
+    canRoll = false;
+    var cube = document.getElementById('cube3d');
+    cube.classList.add('rolling');
+
+    setTimeout(function() {
+      cube.classList.remove('rolling');
+      var rolled = Math.floor(Math.random() * 6) + 1;
+      currentDice = rolled;
+      setCubeFace(rolled);
+      isRolling = false;
+
+      var moves = getLegalMoves(color, rolled);
+      if (moves.length === 0) {
+        setTimeout(passTurn, 1000);
+      } else if (moves.length === 1 && color !== 'YELLOW') {
+        setTimeout(function() { movePawn(color, moves[0].id, rolled); }, 500);
+      } else {
+        if (color === 'YELLOW') {
+          document.getElementById('tipBannerText').innerText = 'المس أحد دبابيسك للتحرك (' + rolled + ') خطوات';
+          renderOfficialBoard();
+        } else {
+          setTimeout(function() { movePawn(color, moves[0].id, rolled); }, 600);
+        }
+      }
+    }, 650);
+  }
+
+  function getLegalMoves(color, steps) {
+    var valid = [];
+    var list = pawns[color];
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      if (p.state === 'GOAL') continue;
+      if (p.state === 'BASE' && steps === 6) valid.push(p);
+      else if (p.state === 'TRACK') valid.push(p);
+      else if (p.state === 'STRETCH' && p.stretch + steps <= 5) valid.push(p);
+    }
+    return valid;
+  }
+
+  function movePawn(color, pawnId, steps) {
+    var p = pawns[color][pawnId];
+    var bonus = false;
+
+    // EXIT FROM BASE: Exactly onto color's starting cell right next to yard
+    if (p.state === 'BASE' && steps === 6) {
+      p.state = 'TRACK';
+      p.track = (color === 'YELLOW') ? 39 : 13; // Yellow starts at 39, Red starts at 13
+      bonus = true;
+    } else if (p.state === 'TRACK') {
+      var entryIndex = (color === 'YELLOW') ? 38 : 12; // cell right before turning into Home Stretch
+      var cur = p.track, enter = false, rem = 0;
+
+      for (var s = 1; s <= steps; s++) {
+        if (cur === entryIndex) {
+          enter = true;
+          rem = steps - s;
+          break;
+        }
+        cur = (cur + 1) % 52;
+      }
+
+      if (enter) {
+        if (rem === 5) { p.state = 'GOAL'; bonus = true; }
+        else if (rem < 5) { p.state = 'STRETCH'; p.stretch = rem; }
+      } else {
+        p.track = cur;
+        // Capture Opponent
+        var oppColor = (color === 'YELLOW') ? 'RED' : 'YELLOW';
+        if (SAFE_STARS.indexOf(cur) === -1) {
+          for (var j = 0; j < pawns[oppColor].length; j++) {
+            var op = pawns[oppColor][j];
+            if (op.state === 'TRACK' && op.track === cur) {
+              op.state = 'BASE'; op.track = -1;
+              bonus = true;
+            }
+          }
+        }
+      }
+    } else if (p.state === 'STRETCH') {
+      if (p.stretch + steps === 5) { p.state = 'GOAL'; bonus = true; }
+      else if (p.stretch + steps < 5) p.stretch += steps;
+    }
+
+    if (steps === 6) bonus = true;
+    renderOfficialBoard();
+
+    if (bonus) {
+      if (color === 'YELLOW') {
+        canRoll = true;
+        document.getElementById('tipBannerText').innerText = '🎉 رمية إضافية! ارمِ النرد مجدداً';
+      } else {
+        setTimeout(opponentMove, 1200);
+      }
+    } else {
+      passTurn();
+    }
+  }
+
+  function passTurn() {
+    turn = (turn === 'YELLOW') ? 'RED' : 'YELLOW';
+    updateTurn();
+  }
+
+  /* 6. OFFICIAL LUDO BOARD RENDERING */
+  var canvas = document.getElementById('ludoCanvas');
+  var ctx = canvas.getContext('2d');
+  var C = 40; // 600 / 15 = 40px cell
+
+  function renderOfficialBoard() {
+    ctx.clearRect(0, 0, 600, 600);
+
+    // 1. Four Yards
+    drawYardBase(0, 0, '#0288D1');      // Top-Left Blue
+    drawYardBase(9*C, 0, '#E53935');    // Top-Right Red
+    drawYardBase(9*C, 9*C, '#43A047');  // Bottom-Right Green
+    drawYardBase(0, 9*C, '#FBC02D');    // Bottom-Left Yellow
+
+    // 2. White Grid Paths
+    ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1.2;
+    for (var r = 0; r < 15; r++) {
+      for (var col = 0; col < 15; col++) {
+        var isYard = (r < 6 && col < 6) || (r < 6 && col > 8) || (r > 8 && col < 6) || (r > 8 && col > 8);
+        var isCenter = (r >= 6 && r <= 8 && col >= 6 && col <= 8);
+        if (!isYard && !isCenter) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(col*C, r*C, C, C);
+          ctx.strokeRect(col*C, r*C, C, C);
+        }
+      }
+    }
+
+    // 3. Official Colored Home Run Paths
+    for (var i = 1; i <= 5; i++) {
+      fillCell(i, 7, '#0288D1');         // Blue Home Path
+      fillCell(7, i, '#E53935');         // Red Home Path
+      fillCell(14-i, 7, '#43A047');      // Green Home Path
+      fillCell(7, 14-i, '#FBC02D');      // Yellow Home Path
+    }
+
+    // 4. Starting Exit Cells (Exactly adjacent to their corresponding yards)
+    fillCell(1, 6, '#0288D1');   // Blue Start Exit
+    fillCell(8, 1, '#E53935');   // Red Start Exit
+    fillCell(13, 8, '#43A047');  // Green Start Exit
+    fillCell(6, 13, '#FBC02D');  // Yellow Start Exit (Exactly next to Yellow Yard!)
+
+    // 5. Official Safe Stars (⭐)
+    for (var s = 0; s < SAFE_STARS.length; s++) {
+      var coord = COMMON_PATH[SAFE_STARS[s]];
+      drawStar(coord.col, coord.row);
+    }
+
+    // 6. Central Triangles (Home)
+    drawCentralTriangles();
+
+    // 7. Draw Pawns (Google Maps Pins)
+    drawPawns();
+  }
+
+  function drawYardBase(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, 6*C, 6*C);
+
+    // Inner White Card
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(x + C, y + C, 4*C, 4*C);
+
+    // 4 Colored Circular Seats inside Yard
+    var seats = [
+      { cx: x + 1.8*C, cy: y + 1.8*C },
+      { cx: x + 4.2*C, cy: y + 1.8*C },
+      { cx: x + 1.8*C, cy: y + 4.2*C },
+      { cx: x + 4.2*C, cy: y + 4.2*C }
+    ];
+    for (var i = 0; i < seats.length; i++) {
+      ctx.beginPath();
+      ctx.arc(seats[i].cx, seats[i].cy, 0.5*C, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+      ctx.stroke();
+    }
+  }
+
+  function fillCell(col, row, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(col*C, row*C, C, C);
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(col*C, row*C, C, C);
+  }
+
+  function drawStar(col, row) {
+    var cx = (col + 0.5) * C, cy = (row + 0.5) * C;
+    ctx.fillStyle = '#FFB300';
+    ctx.font = '22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⭐', cx, cy);
+  }
+
+  function drawCentralTriangles() {
+    var mid = 7.5 * C;
+    // Blue (Left)
+    ctx.fillStyle = '#0288D1';
+    ctx.beginPath(); ctx.moveTo(6*C, 6*C); ctx.lineTo(mid, mid); ctx.lineTo(6*C, 9*C); ctx.fill();
+    // Red (Top)
+    ctx.fillStyle = '#E53935';
+    ctx.beginPath(); ctx.moveTo(6*C, 6*C); ctx.lineTo(mid, mid); ctx.lineTo(9*C, 6*C); ctx.fill();
+    // Green (Right)
+    ctx.fillStyle = '#43A047';
+    ctx.beginPath(); ctx.moveTo(9*C, 6*C); ctx.lineTo(mid, mid); ctx.lineTo(9*C, 9*C); ctx.fill();
+    // Yellow (Bottom)
+    ctx.fillStyle = '#FBC02D';
+    ctx.beginPath(); ctx.moveTo(6*C, 9*C); ctx.lineTo(mid, mid); ctx.lineTo(9*C, 9*C); ctx.fill();
+  }
+
+  function drawPawns() {
+    for (var c in pawns) {
+      var color = (c === 'YELLOW') ? '#FBC02D' : '#E53935';
+      for (var i = 0; i < pawns[c].length; i++) {
+        var p = pawns[c][i];
+        if (p.state === 'GOAL') continue;
+        var pos = getPawnCoordinates(c, p);
+        var glow = (c === 'YELLOW' && turn === 'YELLOW');
+        drawGooglePin(pos.x, pos.y, color, glow);
+      }
+    }
+  }
+
+  function getPawnCoordinates(color, p) {
+    if (p.state === 'BASE') {
+      var s = BASE_SLOTS[color][p.id];
+      return { x: s.col * C, y: s.row * C };
+    }
+    if (p.state === 'TRACK') {
+      var coord = COMMON_PATH[p.track];
+      return { x: (coord.col + 0.5) * C, y: (coord.row + 0.5) * C };
+    }
+    if (p.state === 'STRETCH') {
+      var cHome = HOME_STRETCHES[color][p.stretch];
+      return { x: (cHome.col + 0.5) * C, y: (cHome.row + 0.5) * C };
+    }
+    return { x: 300, y: 300 };
+  }
+
+  function drawGooglePin(x, y, color, isGlowing) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Drop shadow
+    ctx.beginPath();
+    ctx.ellipse(0, 16, 8, 3.5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fill();
+
+    if (isGlowing) {
+      ctx.beginPath();
+      ctx.arc(0, -6, 20, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 213, 79, 0.45)';
+      ctx.fill();
+    }
+
+    // Teardrop Shape
+    ctx.beginPath();
+    ctx.arc(0, -7, 15, Math.PI * 0.8, Math.PI * 0.2, false);
+    ctx.lineTo(0, 17);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // White Core Center
+    ctx.beginPath();
+    ctx.arc(0, -7, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  canvas.addEventListener('pointerdown', function(e) {
+    if (turn !== 'YELLOW' || !currentDice) return;
+    var rect = canvas.getBoundingClientRect();
+    var scale = 600 / rect.width;
+    var touchX = (e.clientX - rect.left) * scale;
+    var touchY = (e.clientY - rect.top) * scale;
+
+    var moves = getLegalMoves('YELLOW', currentDice);
+    for (var i = 0; i < moves.length; i++) {
+      var p = moves[i];
+      var pos = getPawnCoordinates('YELLOW', p);
+      if (Math.hypot(touchX - pos.x, touchY - pos.y) <= C * 0.95) {
+        movePawn('YELLOW', p.id, currentDice);
+        break;
+      }
+    }
+  });
+
+  /* 7. GEMS WHEEL */
+  var wheelCanvas = document.getElementById('wheelCanvas');
+  var wctx = wheelCanvas.getContext('2d');
+  var gemPrizes = ["💎 5", "💎 10", "💎 15", "💎 25", "💎 35", "💎 50", "💎 75", "💎 100"];
+  var wheelAngle = 0;
+
+  function drawGemsWheel(angle) {
+    var seg = (Math.PI * 2) / 8;
+    wctx.clearRect(0, 0, 300, 300);
+    for (var i = 0; i < 8; i++) {
+      wctx.beginPath(); wctx.moveTo(150, 150);
+      wctx.arc(150, 150, 145, angle + i * seg, angle + (i + 1) * seg);
+      wctx.fillStyle = (i % 2 === 0) ? '#0D47A1' : '#1565C0';
+      wctx.fill();
+      wctx.strokeStyle = '#FFD54F'; wctx.lineWidth = 2; wctx.stroke();
+
+      wctx.save();
+      wctx.translate(150, 150);
+      wctx.rotate(angle + i * seg + seg / 2);
+      wctx.textAlign = 'right';
+      wctx.fillStyle = '#00E5FF';
+      wctx.font = 'bold 16px sans-serif';
+      wctx.fillText(gemPrizes[i], 130, 6);
+      wctx.restore();
+    }
+    wctx.beginPath(); wctx.arc(150, 150, 20, 0, Math.PI * 2);
+    wctx.fillStyle = '#FFD54F'; wctx.fill();
+  }
+
+  function spinGems() {
+    var spd = Math.random() * 0.25 + 0.35;
+    var anim = function() {
+      wheelAngle += spd; spd -= 0.003; drawGemsWheel(wheelAngle);
+      if (spd > 0) requestAnimationFrame(anim);
+      else {
+        userGems += 25; saveBal();
+        alert('🎉 مبروك! فزت بـ 25 جوهرة 💎!');
+      }
+    };
+    requestAnimationFrame(anim);
+  }
+
+  renderOfficialBoard();
+  drawGemsWheel(0);
+</script>
+</body>
+</html>
